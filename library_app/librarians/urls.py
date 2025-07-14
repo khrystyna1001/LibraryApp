@@ -1,10 +1,10 @@
-from django.urls import path
-from librarians.views import get_librarians, create_librarian, get_librarian, delete_librarian, update_librarian
+from django.urls import path, include
+from librarians.views import LibrarianViewSet
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'', LibrarianViewSet)
 
 urlpatterns = [
-    path("", get_librarians, name="get-librarians"),
-    path("create", create_librarian, name="create-librarian"),
-    path("<int:pk>", get_librarian, name="get-librarian"),
-    path("update/<int:pk>", update_librarian, name="update-librarian"),
-    path("delete/<int:pk>", delete_librarian, name="delete-librarian")
+    path("", include(router.urls))
 ]
