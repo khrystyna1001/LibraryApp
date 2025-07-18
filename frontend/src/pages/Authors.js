@@ -2,13 +2,13 @@ import React from 'react';
 import NavBar from '../components/Navigation';
 import Card from 'react-bootstrap/Card';
 
-function Home() {
+function Authors() {
     return (
         <React.Fragment>
             <NavBar />
-            <Card body className='m-3 mx-5 px-3'>This is some text within a card body.</Card>
+            <Card body className='m-3 mx-5 px-3'>This is some text within a card body in the AUTHOR page.</Card>
         </React.Fragment>
     )
 }
 
-export default Home;
+export default Authors;
