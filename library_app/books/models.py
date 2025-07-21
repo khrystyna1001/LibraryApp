@@ -6,7 +6,8 @@ class Book(models.Model):
     description = models.TextField()
     author = models.ManyToManyField(
         'authors.Author',
-        'books_written'
+        related_name='books_written'
     )
     published_date = models.DateField()
     is_available = models.BooleanField()
+

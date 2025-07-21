@@ -67,7 +67,17 @@ class Books extends Component {
                     <ul>
                         {books.map(book => (
                             <li key={book.id}>
-                                <strong>{book.title}</strong> by {book.author}
+                                <strong>{book.title}</strong> by { 
+                                    Array.isArray(book.author) && book.author.length > 0 ? (
+                                        book.author.map((authorObj, index) => (
+                                            <span key={authorObj.id}>
+                                                {authorObj.full_name || `${authorObj.first_name} ${authorObj.last_name}`}
+                                                {index < book.author.length - 1 ? ', ' : ''}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span>Unknown Author</span>
+                                    )}
                             </li>
                         ))}
                     </ul>

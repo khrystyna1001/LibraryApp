@@ -1,11 +1,10 @@
 from rest_framework import viewsets
 from authors.serializer import AuthorSerializer
-from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework.authentication import TokenAuthentication
 from authors.models import Author
 # Create your views here.
 
-class AuthorViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
-    login_url = "/login/"
-    redirect_field_name = "/home"
+class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
     queryset = Author.objects.all()
+    authentication_classes = (TokenAuthentication,)
