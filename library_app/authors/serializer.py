@@ -4,7 +4,7 @@ from books.serializer import AuthorBookSerializer
 
 class AuthorSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
-    books_written = AuthorBookSerializer(many=True, read_only=True)
+    books_written = AuthorBookSerializer(many=True)
 
     class Meta:
         model = Author

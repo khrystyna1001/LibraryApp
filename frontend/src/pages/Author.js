@@ -7,40 +7,46 @@ import axios from 'axios';
 import withRouter from '../utils/withRouter';
 
 
-class Books extends Component {
+class Author extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          books: [],
+          author: {},
           error: null,
           loading: true,
         };
     }
 
-    handleInfoButton = (bookID) => {
-        this.props.router.navigate(`${bookID}`);
+    handleAuthorListButton = () => {
+        this.props.router.navigate("/authors/");
+    }
+
+    handleBookButton = (bookID) => {
+        this.props.router.navigate(`/books/${bookID}`);
     }
 
     async componentDidMount() {
         try {
+
+            const { authorID } = this.props.router.params;
 
             const requestHeaders = {
                 "Content-Type": "application/json",
                 "Authorization": "Token b0ddff958c343d0efa8941aa634d83333c35790e"
             }
 
-            const response = await axios.get('http://localhost:8000/books/', {
+            const response = await axios.get(`http://localhost:8000/authors/${authorID}/`, {
                 headers: requestHeaders
             });
-            const fetchedBooks = response.data;
+            const fetchedAuthor = response.data;
 
-            if (Array.isArray(fetchedBooks)) {
+            if (typeof fetchedAuthor === 'object' && fetchedAuthor !== null && !Array.isArray(fetchedAuthor)) {
                 this.setState({
-                books: fetchedBooks,
+                author: fetchedAuthor,
                 loading: false,
             });
             } else {
-                console.error("API did not return an array for books:", fetchedBooks);
+                console.error("API did not return an author:", fetchedAuthor);
                 this.setState({
                     error: new Error("Invalid data format received from API."),
                     loading: false,
@@ -48,23 +54,23 @@ class Books extends Component {
             }
 
         } catch (error) {
-            console.error("Failed to fetch books:", error);
+            console.error("Failed to fetch author:", error);
             this.setState({
                 error: error,
                 loading: false,
             });
+        }
     }
-}
 
     render() {
-        const { books, error, loading } = this.state;
+        const { author, error, loading } = this.state;
 
         if (loading) {
             return (
                 <React.Fragment>
                     <NavBar />
                     <Card body className='m-3 mx-5 px-3'>
-                        Loading books...
+                        Loading author info...
                     </Card>
                 </React.Fragment>
             );
@@ -84,41 +90,29 @@ class Books extends Component {
             <React.Fragment>
                 <NavBar />
                 <Card body className='m-3 mx-5 px-3'>
-                
-                <h1 style={{ margin: '20px' }}>Book List</h1>
-                { books.length > 0 ? (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                        {books.map(book => (
-                            <Card body className='m-3' style={{ width: '18rem' }}>
+                    <div style={{ margin: '20px' }}>
+                        <Card.Title>{author.full_name}</Card.Title>
                                 <Card.Body>
-                                        <Card.Title>{book.title}</Card.Title>
                                         <Card.Text>
-                                            {Array.isArray(book.author) && book.author.length > 0 ? (
+                                            {author.books_written && author.books_written.length > 0 ? (
                                                 <ul>
-                                                    {book.author.map((authorObj, index) => (
-                                                        <li key={book.id}>
-                                                            {authorObj.full_name || `${authorObj.first_name} ${authorObj.last_name}`}
-                                                            {index < book.author.length - 1 ? ', ' : ''}
+                                                    {author.books_written.map(book => (
+                                                        <li key={book.id} onClick={() => this.handleBookButton(book.id)}>
+                                                            {book.title} (Published at: {book.published_date})
                                                         </li>
                                                     ))}
                                                 </ul>
                                             ) : (
-                                                <span></span>
+                                                <span>No data</span>
                                         )}
                                         </Card.Text> 
-                                </Card.Body>
-                                <Button className='primary' onClick={() => this.handleInfoButton(book.id)}>View Info</Button>
-                            </Card>
-                        ))}
+                            </Card.Body>
+                        <Button className='primary' onClick={this.handleAuthorListButton}>Go back to author list</Button>
                     </div>
-                    ) : (
-                        <p>No books found.</p>
-                    )
-                    }
                 </Card>
             </React.Fragment>
         )
     }
 }
 
-export default withRouter(Books);
+export default withRouter(Author);

@@ -33,7 +33,7 @@ function NavBar() {
     return (
         <Navbar bg="dark" data-bs-theme="dark">
             <Container>
-                <Navbar.Brand href="/" className='m-3 me-5'>Hello user</Navbar.Brand>
+                <Navbar.Brand href="/" className='m-3 me-5'>Hello User</Navbar.Brand>
                 <Nav className="justify-content-center me-auto d-flex gap-3">
                     <Nav.Item>
                         <Nav.Link href='/' active={location.pathname === '/'}>
@@ -50,10 +50,10 @@ function NavBar() {
                         id="nav-dropdown"
                         active={location.pathname === '/books' || location.pathname === '/authors'}
                     >
-                        <NavDropdown.Item href="books">
+                        <NavDropdown.Item href="/books">
                             Books
                         </NavDropdown.Item>
-                        <NavDropdown.Item href="authors">
+                        <NavDropdown.Item href="/authors">
                             Authors
                         </NavDropdown.Item>
                     </NavDropdown>

@@ -3,6 +3,9 @@ import Home from './pages/Home';
 import Books from './pages/Books';
 import Authors from './pages/Authors';
 import About from './pages/About';
+import Book from './pages/Book';
+import Author from './pages/Author';
+
 import { Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -14,6 +17,8 @@ function App() {
           <Route path='/about' Component={About}></Route>
           <Route path='/books' Component={Books}></Route>
           <Route path='/authors' Component={Authors}></Route>
+          <Route path='/books/:bookID' Component={Book}></Route>
+          <Route path='/authors/:authorID' Component={Author}></Route>
         </Routes>
       </header>
     </div>

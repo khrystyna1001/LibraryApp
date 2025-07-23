@@ -1,23 +1,30 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
 import axios from 'axios';
+
+import withRouter from '../utils/withRouter';
 
 class Authors extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          books: [],
+          authors: [],
           error: null,
           loading: true,
         };
+    }
+
+    handleInfoButton = (authorID) => {
+        this.props.router.navigate(`/authors/${authorID}`);
     }
 
     async componentDidMount() {
         try {
 
             const requestHeaders = {
-                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Type": "application/json",
                 "Authorization": "Token b0ddff958c343d0efa8941aa634d83333c35790e"
             }
 
@@ -52,39 +59,47 @@ class Authors extends Component {
         const {  authors, error, loading } = this.state;
 
         if (loading) {
-            return <Card>Loading...</Card>
+            return (
+                <React.Fragment>
+                    <NavBar />
+                    <Card body className='m-3 mx-5 px-3'>
+                        Loading authors...
+                    </Card>
+                </React.Fragment>
+            );
         }
 
         if (error) {
-            return <Card>Error: {error.message}</Card>
+            return (
+                <React.Fragment>
+                    <NavBar />
+                    <Card body className='m-3 mx-5 px-3'>
+                        Error: {error.message}
+                    </Card>
+                </React.Fragment>
+            );
         }
          return (
             <React.Fragment>
                 <NavBar />
-                <h1>Author List</h1>
+                <Card body className='m-3 mx-5 px-3'>
+                
+                <h1 style={{ margin: '20px' }}>Author  List</h1>
                 { authors.length > 0 ? (
-                    <ul>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         {authors.map(author => (
-                            <li key={author.id}>
-                                <strong>{author.full_name}</strong> { 
-                                    Array.isArray(author.books_written) && author.books_written.length > 0 ? (
-                                        author.books_written.map((bookObj, index) => (
-                                            <span key={bookObj.id}>
-                                                {bookObj.title}
-                                                {index < author.books_written.length - 1 ? ', ' : ''}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span></span>
-                                )}
-                            </li>
+                            <Card body className='m-3' style={{ width: '18rem' }}>
+                                <Card.Body>
+                                        <Card.Title>{author.full_name}</Card.Title>
+                                </Card.Body>
+                                <Button className='primary' onClick={() => this.handleInfoButton(author.id)}>View Info</Button>
+                            </Card>
                         ))}
-                    </ul>
+                    </div>
                     ) : (
                         <p>No authors found.</p>
-                    )}
-                <Card body className='m-3 mx-5 px-3'>
-                    <pre>{JSON.stringify(authors, null, 2)}</pre>
+                    )
+                    }
                 </Card>
             </React.Fragment>
         )
@@ -92,4 +107,4 @@ class Authors extends Component {
    
 }
 
-export default Authors;
+export default withRouter(Authors);
