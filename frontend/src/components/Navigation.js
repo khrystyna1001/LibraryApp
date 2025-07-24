@@ -9,14 +9,33 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
-import '../styles/navbar.css'
 import axios from 'axios';
+
+import {
+    MDBContainer,
+    MDBNavbar,
+    MDBNavbarBrand,
+    MDBNavbarToggler,
+    MDBIcon,
+    MDBNavbarNav,
+    MDBNavbarItem,
+    MDBNavbarLink,
+    MDBBtn,
+    MDBDropdown,
+    MDBDropdownToggle,
+    MDBDropdownMenu,
+    MDBDropdownItem,
+    MDBCollapse,
+  } from 'mdb-react-ui-kit';
 
 function NavBar() {
 
     const [dropdownTitle, setDropdownTitle] = useState('');
     const [user, setUser] = useState({});
     const location = useLocation();
+
+    const [openBasic, setOpenBasic] = useState(false);
+
 
     useEffect(() => {
 
@@ -52,47 +71,55 @@ function NavBar() {
     }
 
     return (
-        <Navbar bg="dark" data-bs-theme="dark">
-            <Container>
-                <Navbar.Brand href="/" className='m-3 me-5'>Hello {user.username}</Navbar.Brand>
-                <Nav className="justify-content-center me-auto d-flex gap-3">
-                    <Nav.Item>
-                        <Nav.Link href='/' active={location.pathname === '/'}>
-                            Home
-                        </Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                        <Nav.Link href='/about' active={location.pathname === '/about'}>
-                            About
-                        </Nav.Link>
-                    </Nav.Item>
-                    <NavDropdown
-                        title={dropdownTitle}
-                        id="nav-dropdown"
-                        active={location.pathname === '/books' || location.pathname === '/authors'}
-                    >
-                        <NavDropdown.Item href="/books">
-                            Books
-                        </NavDropdown.Item>
-                        <NavDropdown.Item href="/authors">
-                            Authors
-                        </NavDropdown.Item>
-                    </NavDropdown>
-                </Nav>
-            </Container>
-            <Form className='d-flex gap-2 me-5'>
-                <Form.Control
-                    type="text"
-                    placeholder="Search"
-                    className="search-input-width"
-                    />
-                <Button type="submit">Submit</Button>
-            </Form>
-            <Button variant="dark" className="ms-auto me-4 mx-2 text-nowrap" onClick={handleLogout}>
-                Log out
-            </Button>
-        </Navbar>
-    );
+        <React.Fragment>
+            <MDBNavbar expand='lg' dark bgColor='dark'>
+            <MDBContainer fluid>
+                <MDBNavbarBrand href='/'>Hello user</MDBNavbarBrand>
+
+                <MDBNavbarToggler
+                aria-controls='navbarSupportedContent'
+                aria-expanded='false'
+                aria-label='Toggle navigation'
+                onClick={() => setOpenBasic(!openBasic)}
+                >
+                <MDBIcon icon='bars' fas />
+                </MDBNavbarToggler>
+
+                <MDBCollapse navbar open={openBasic}>
+                <MDBNavbarNav className='my-2, my-lg-0, me-sm-0, my-sm-0 mx-2'>
+                    <MDBNavbarItem>
+                    <MDBNavbarLink active={location.pathname === '/'} aria-current='page' href='/'>
+                        Home
+                    </MDBNavbarLink>
+                    </MDBNavbarItem>
+                    <MDBNavbarItem>
+                    <MDBNavbarLink active={location.pathname === '/about'} href='/about'>About</MDBNavbarLink>
+                    </MDBNavbarItem>
+
+                    <MDBNavbarItem>
+                    <MDBDropdown>
+                        <MDBDropdownToggle active={location.pathname === '/books' || location.pathname === '/authors'} tag='a' className='nav-link' role='button'>
+                        {dropdownTitle}
+                        </MDBDropdownToggle>
+                        <MDBDropdownMenu>
+                        <MDBDropdownItem href='/books/' link>Books</MDBDropdownItem>
+                        <MDBDropdownItem href='/authors/' link>Authors</MDBDropdownItem>
+                        </MDBDropdownMenu>
+                    </MDBDropdown>
+                    </MDBNavbarItem>
+                </MDBNavbarNav>
+                </MDBCollapse>
+
+                <form className='d-flex input-group w-auto mx-3'>
+                    <input type='search' className='form-control' placeholder='Search' aria-label='Search' />
+                    <MDBBtn color='primary'>Search</MDBBtn>
+                </form>
+                
+                <MDBBtn color='primary' onClick={handleLogout}>Log Out</MDBBtn>
+            </MDBContainer>
+        </MDBNavbar>
+    </React.Fragment>
+  );
 }
 
 export default NavBar;
