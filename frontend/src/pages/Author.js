@@ -89,11 +89,10 @@ class Author extends Component {
         return (
             <React.Fragment>
                 <NavBar />
-                <Card body className='m-3 mx-5 px-3'>
+                <Card key={author.id} body className='m-3 mx-5 px-3'>
                     <div style={{ margin: '20px' }}>
                         <Card.Title>{author.full_name}</Card.Title>
                                 <Card.Body>
-                                        <Card.Text>
                                             {author.books_written && author.books_written.length > 0 ? (
                                                 <ul>
                                                     {author.books_written.map(book => (
@@ -105,7 +104,6 @@ class Author extends Component {
                                             ) : (
                                                 <span>No data</span>
                                         )}
-                                        </Card.Text> 
                             </Card.Body>
                         <Button className='primary' onClick={this.handleAuthorListButton}>Go back to author list</Button>
                     </div>

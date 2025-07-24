@@ -10,13 +10,34 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
 import '../styles/navbar.css'
+import axios from 'axios';
 
 function NavBar() {
 
     const [dropdownTitle, setDropdownTitle] = useState('');
+    const [user, setUser] = useState({});
     const location = useLocation();
 
     useEffect(() => {
+
+        const fetchUserData = async () => {
+            const token = '2bef80e4799cf2f8642055d43b0a02bfee5e9e29'
+            const requestHeaders = {
+                "Content-Type": "application/json",
+                "Authorization": `Token ${token}`,
+            }
+            
+            try {
+                const response = await axios.get(`http://localhost:8000/user/me`, {
+                    headers: requestHeaders
+                });
+                setUser(response.data)
+            } catch (e) {
+                console.error("Failed to fetch user data")
+            } 
+        }
+        fetchUserData();
+
         if (location.pathname === '/books') {
             setDropdownTitle('Books');
         } else if (location.pathname === '/authors') {
@@ -33,7 +54,7 @@ function NavBar() {
     return (
         <Navbar bg="dark" data-bs-theme="dark">
             <Container>
-                <Navbar.Brand href="/" className='m-3 me-5'>Hello User</Navbar.Brand>
+                <Navbar.Brand href="/" className='m-3 me-5'>Hello {user.username}</Navbar.Brand>
                 <Nav className="justify-content-center me-auto d-flex gap-3">
                     <Nav.Item>
                         <Nav.Link href='/' active={location.pathname === '/'}>

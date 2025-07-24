@@ -32,6 +32,7 @@ class Books extends Component {
             const response = await axios.get('http://localhost:8000/books/', {
                 headers: requestHeaders
             });
+            
             const fetchedBooks = response.data;
 
             if (Array.isArray(fetchedBooks)) {
@@ -89,10 +90,9 @@ class Books extends Component {
                 { books.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         {books.map(book => (
-                            <Card body className='m-3' style={{ width: '18rem' }}>
+                            <Card key={book.id} body className='m-3' style={{ width: '18rem' }}>
                                 <Card.Body>
                                         <Card.Title>{book.title}</Card.Title>
-                                        <Card.Text>
                                             {Array.isArray(book.author) && book.author.length > 0 ? (
                                                 <ul>
                                                     {book.author.map((authorObj, index) => (
@@ -105,7 +105,6 @@ class Books extends Component {
                                             ) : (
                                                 <span></span>
                                         )}
-                                        </Card.Text> 
                                 </Card.Body>
                                 <Button className='primary' onClick={() => this.handleInfoButton(book.id)}>View Info</Button>
                             </Card>

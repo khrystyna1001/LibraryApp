@@ -8,9 +8,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("authors", "0001_initial"),
-        ("librarians", "0001_initial"),
-        ("visitors", "0001_initial"),
+        ("authors", "0001_initial")
     ]
 
     operations = [
@@ -29,24 +27,11 @@ class Migration(migrations.Migration):
                 ("title", models.CharField(max_length=100)),
                 ("description", models.TextField()),
                 ("published_date", models.DateField()),
-                ("days_remaining", models.DateField()),
                 ("is_available", models.BooleanField()),
                 (
                     "author",
                     models.ManyToManyField(
                         related_name="books_written", to="authors.author"
-                    ),
-                ),
-                (
-                    "borrowed_by",
-                    models.ManyToManyField(
-                        related_name="books_borrowed", to="visitors.visitor"
-                    ),
-                ),
-                (
-                    "issued_by",
-                    models.ManyToManyField(
-                        related_name="books_issued", to="librarians.librarian"
                     ),
                 ),
             ],

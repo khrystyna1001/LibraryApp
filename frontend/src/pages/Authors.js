@@ -88,7 +88,7 @@ class Authors extends Component {
                 { authors.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         {authors.map(author => (
-                            <Card body className='m-3' style={{ width: '18rem' }}>
+                            <Card key={author.id} body className='m-3' style={{ width: '18rem' }}>
                                 <Card.Body>
                                         <Card.Title>{author.full_name}</Card.Title>
                                 </Card.Body>

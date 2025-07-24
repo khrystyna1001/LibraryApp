@@ -89,30 +89,42 @@ class Book extends Component {
         return (
             <React.Fragment>
                 <NavBar />
-                <Card body className='m-3 mx-5 px-3'>
-                    <div style={{ margin: '20px' }}>
-                        <Card.Title>{book.title}</Card.Title>
-                        <Card.Text>{book.description}
-                        {book.published_date}
-                        {Array.isArray(book.author) && book.author.length > 0 ? (
-                            <ul>
-                                {book.author.map((authorObj, index) => (
-                                    <li key={book.id}>
-                                        {authorObj.full_name || `${authorObj.first_name} ${authorObj.last_name}`}
-                                        {index < book.author.length - 1 ? ', ' : ''}
-                                    </li>
-                                ))}
-                            </ul>
-                            ) : book.author ? (
-                                <p><strong>Author:</strong> {book.author.full_name || `${book.author.first_name} ${book.author.last_name}`}</p>
-                            ) : (
-                                <span>No author information available</span>
-                        )}
-                        </Card.Text>
-                        <Button className='primary' onClick={this.handleBookListButton}>Go back to book list</Button>
-                        <Button className='primary mx-3' onClick={this.handleAuthorListButton}>Go back to author list</Button>
+                    <div style={{ margin: '30px' }}>
+                        <h2>{book.title}</h2>
+                        <br></br>
+                        <Card>
+                        <div style={{ display: 'flex', margin: '20px' }}>
+                            <Card.Img style={{ width: '200px' }}  />
+                            <div style={{ margin: '50px' }}>
+                                Authors: {Array.isArray(book.author) && book.author.length > 0 ? (
+                                    <ul>
+                                        {book.author.map((authorObj, index) => (
+                                            <li key={book.id}>
+                                                {authorObj.full_name || `${authorObj.first_name} ${authorObj.last_name}`}
+                                                {index < book.author.length - 1 ? ', ' : ''}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    ) : book.author ? (
+                                        <p><strong>Author:</strong> {book.author.full_name || `${book.author.first_name} ${book.author.last_name}`}</p>
+                                    ) : (
+                                        <span>No author information available</span>
+                                )}
+                                {book.description}
+                                <br></br>
+                                <br></br>
+                                Published at: <p>{book.published_date}</p>
+                            </div>
+                        </div>
+                        </Card>
+                        <br></br>
+                        <div style={{ margin: '10px' }}>
+                            <Button className='primary' onClick={this.handleBookListButton}>Go back to book list</Button>
+                            <Button className='primary mx-3' onClick={this.handleAuthorListButton}>Go back to author list</Button>
+
+                            <Button className='primary mx-3' onClick={this.handleBorrowButton}>Borrow Book</Button>
+                        </div>
                     </div>
-                </Card>
             </React.Fragment>
         )
     }

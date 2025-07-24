@@ -22,6 +22,7 @@ from app import views
 
 urlpatterns = [
     path("", include('app.urls')),
+    
     path("login/", views.login, name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("social-auth/", include("social_django.urls", namespace="social")),
@@ -29,8 +30,6 @@ urlpatterns = [
 
     path("books/", include('books.urls')),
     path("authors/", include('authors.urls')),
-    path("librarians/", include('librarians.urls')),
-    path("visitors/", include('visitors.urls')),
 
     path("admin/", admin.site.urls),
 ]

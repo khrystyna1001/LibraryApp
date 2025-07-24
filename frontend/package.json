@@ -12,7 +12,6 @@
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.7.0",
-    "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -40,6 +39,9 @@
     ]
   },
   "devDependencies": {
-    "axios": "^1.10.0"
+    "@fortawesome/fontawesome-free": "^7.0.0",
+    "axios": "^1.10.0",
+    "mdb-react-ui-kit": "^9.0.0",
+    "react-scripts": "^5.0.1"
   }
 }
