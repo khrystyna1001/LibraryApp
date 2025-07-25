@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
-import axios from 'axios';
 
 import withRouter from '../utils/withRouter';
+import { getItem } from '../api';
 
 
 class Book extends Component {
@@ -27,18 +27,11 @@ class Book extends Component {
 
     async componentDidMount() {
         try {
-
+            const token = localStorage.getItem('token');
             const { bookID } = this.props.router.params;
 
-            const requestHeaders = {
-                "Content-Type": "application/json",
-                "Authorization": "Token b0ddff958c343d0efa8941aa634d83333c35790e"
-            }
-
-            const response = await axios.get(`http://localhost:8000/books/${bookID}/`, {
-                headers: requestHeaders
-            });
-            const fetchedBook = response.data;
+            const fetchedBook = await getItem('book', bookID, token);
+            console.log(fetchedBook)
 
             if (typeof fetchedBook === 'object' && fetchedBook !== null && !Array.isArray(fetchedBook)) {
                 this.setState({

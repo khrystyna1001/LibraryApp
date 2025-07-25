@@ -15,12 +15,12 @@ function App() {
       <header className="App-header">
         <Routes>
           <Route path='/' Component={Home}></Route>
-          <Route path='/login' Component={Login}></Route>
-          <Route path='/about' Component={About}></Route>
-          <Route path='/books' Component={Books}></Route>
-          <Route path='/authors' Component={Authors}></Route>
-          <Route path='/books/:bookID' Component={Book}></Route>
-          <Route path='/authors/:authorID' Component={Author}></Route>
+          <Route path='/login/' Component={Login}></Route>
+          <Route path='/about/' Component={About}></Route>
+          <Route path='/books/' Component={Books}></Route>
+          <Route path='/authors/' Component={Authors}></Route>
+          <Route path='/books/:bookID/' Component={Book}></Route>
+          <Route path='/authors/:authorID/' Component={Author}></Route>
         </Routes>
       </header>
     </div>

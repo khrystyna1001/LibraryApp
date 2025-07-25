@@ -1,33 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   MDBInput,
-  MDBCol,
-  MDBRow,
-  MDBCheckbox,
   MDBBtn,
   MDBIcon
 } from 'mdb-react-ui-kit';
+import withRouter from '../utils/withRouter';
+import { getUserData } from '../api';
 
-export default function Login() {
+function Login(props) {
+  const [formValue, setFormValue] = useState("");
+
+  const onFormChange = (e) => {
+    const newValue = e.target.value;
+    setFormValue(newValue);
+  };
+
+  const handleFbButton = () => {
+    console.log('FACEBOOK')
+    props.router.navigate("/");
+  }
+
+  const handleLogIn = async (e) => {
+      e.preventDefault();
+      
+      try {
+        getUserData(formValue);
+        localStorage.setItem('token', formValue);
+        console.log("Token stored in localStorage:", formValue);
+        props.router.navigate("/");
+      } catch (err) {
+          console.error("Failed to fetch user data");
+      }
+  }
+
   return (
     <div className='d-flex align-items-center justify-content-center' style={{ height: '600px' }}>
-      <form className='m-auto w-25'>
-        <MDBInput className='m-4' type='email' id='form2Example1' label='Username' />
-        <MDBInput className='m-4' type='password' id='form2Example2' label='Password' />
+      <form className='m-auto w-25' onSubmit={handleLogIn}>
 
+        <MDBInput className='m-4' type='password' id='form2Example2' label='Token' value={formValue} onChange={(e) => onFormChange(e)} required />
         <MDBBtn type='submit' className='mb-4' block>
-          Sign in
-        </MDBBtn>
-
-        <MDBInput className='m-4' type='password' id='form2Example2' label='Token' />
-        <MDBBtn type='submit' className='mb-4' block>
-          Sign in with Token
+          Log in
         </MDBBtn>
 
         <div className='text-center'>
-          <p>Sign up with:</p>
+          <p>Sign in with:</p>
 
-          <MDBBtn floating color="secondary" className='mx-1'>
+          <MDBBtn floating color="secondary" className='mx-1' onClick={handleFbButton}>
             <MDBIcon fab icon='facebook-f' />
           </MDBBtn>
         </div>
@@ -35,3 +53,5 @@ export default function Login() {
     </div>
   );
 }
+
+export default withRouter(Login);

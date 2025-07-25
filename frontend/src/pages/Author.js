@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
-import axios from 'axios';
 
 import withRouter from '../utils/withRouter';
+import { getItem } from '../api';
 
 
 class Author extends Component {
@@ -27,18 +27,11 @@ class Author extends Component {
 
     async componentDidMount() {
         try {
-
+            const token = localStorage.getItem('token');
             const { authorID } = this.props.router.params;
 
-            const requestHeaders = {
-                "Content-Type": "application/json",
-                "Authorization": "Token b0ddff958c343d0efa8941aa634d83333c35790e"
-            }
-
-            const response = await axios.get(`http://localhost:8000/authors/${authorID}/`, {
-                headers: requestHeaders
-            });
-            const fetchedAuthor = response.data;
+            const fetchedAuthor = await getItem('author', authorID, token);
+            console.log(fetchedAuthor)
 
             if (typeof fetchedAuthor === 'object' && fetchedAuthor !== null && !Array.isArray(fetchedAuthor)) {
                 this.setState({
@@ -54,7 +47,7 @@ class Author extends Component {
             }
 
         } catch (error) {
-            console.error("Failed to fetch author:", error);
+            console.error("Failed to fetch authors:", error);
             this.setState({
                 error: error,
                 loading: false,

@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-
-import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-
-import axios from 'axios';
+import withRouter from '../utils/withRouter';
+import { getUserData } from '../api';
 
 import {
     MDBContainer,
@@ -28,7 +21,7 @@ import {
     MDBCollapse,
   } from 'mdb-react-ui-kit';
 
-function NavBar() {
+function NavBar(props) {
 
     const [dropdownTitle, setDropdownTitle] = useState('');
     const [user, setUser] = useState({});
@@ -40,17 +33,18 @@ function NavBar() {
     useEffect(() => {
 
         const fetchUserData = async () => {
-            const token = '2bef80e4799cf2f8642055d43b0a02bfee5e9e29'
-            const requestHeaders = {
-                "Content-Type": "application/json",
-                "Authorization": `Token ${token}`,
+            
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                console.log("No token found, redirecting to login.");
+                props.router.navigate("/login/");
+                return;
             }
             
             try {
-                const response = await axios.get(`http://localhost:8000/user/me`, {
-                    headers: requestHeaders
-                });
-                setUser(response.data)
+                const userData = await getUserData(token); 
+                setUser(userData);
             } catch (e) {
                 console.error("Failed to fetch user data")
             } 
@@ -62,11 +56,15 @@ function NavBar() {
         } else if (location.pathname === '/authors') {
             setDropdownTitle('Authors');
         } else {
-            setDropdownTitle('Books');;
+            setDropdownTitle('Books');
         }
-    }, [location.pathname]);
+    }, [location.pathname, props.router, user]);
 
     const handleLogout = () => {
+        props.router.navigate("/login/");
+        localStorage.removeItem('token');
+        setUser(null);
+        
         console.log("USER LOGGED OUT");
     }
 
@@ -74,7 +72,7 @@ function NavBar() {
         <React.Fragment>
             <MDBNavbar expand='lg' dark bgColor='dark'>
             <MDBContainer fluid>
-                <MDBNavbarBrand href='/'>Hello user</MDBNavbarBrand>
+                <MDBNavbarBrand href='/'>Hello {user ? user.username : ''}</MDBNavbarBrand>
 
                 <MDBNavbarToggler
                 aria-controls='navbarSupportedContent'
@@ -122,4 +120,4 @@ function NavBar() {
   );
 }
 
-export default NavBar;
+export default withRouter(NavBar);

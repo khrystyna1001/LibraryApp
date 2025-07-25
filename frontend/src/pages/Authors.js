@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
-import axios from 'axios';
+import { getItems } from '../api';
 
 import withRouter from '../utils/withRouter';
 
@@ -23,15 +23,8 @@ class Authors extends Component {
     async componentDidMount() {
         try {
 
-            const requestHeaders = {
-                "Content-Type": "application/json",
-                "Authorization": "Token b0ddff958c343d0efa8941aa634d83333c35790e"
-            }
-
-            const response = await axios.get('http://localhost:8000/authors/', {
-                headers: requestHeaders
-            });
-            const fetchedAuthors = response.data;
+            const token = localStorage.getItem('token');
+            const fetchedAuthors = await getItems('author', token);
 
             if (Array.isArray(fetchedAuthors)) {
                 this.setState({
