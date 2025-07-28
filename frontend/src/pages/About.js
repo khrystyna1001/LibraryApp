@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-import Card from 'react-bootstrap/Card';
+import { 
+    MDBCard
+} from 'mdb-react-ui-kit'
 
 class About extends Component {
     render() {
          return (
             <React.Fragment>
                 <NavBar />
-                <Card body className='m-3 mx-5 px-3'>This is some text within a card body in the ABOUT page.</Card>
+                <MDBCard alignment='center' className='m-4'>This is some text within a card body in the ABOUT page.</MDBCard>
             </React.Fragment>
         )
     }

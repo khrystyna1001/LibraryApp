@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
+import { 
+    MDBCard,
+    MDBCardBody,
+    MDBCardTitle,
+    MDBBtn
+} 
+from 'mdb-react-ui-kit';
 import { getItems } from '../api';
 
 import withRouter from '../utils/withRouter';
@@ -55,9 +60,11 @@ class Authors extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card body className='m-3 mx-5 px-3'>
-                        Loading authors...
-                    </Card>
+                    <MDBCard>
+                      <MDBCardBody>
+                        <MDBCardTitle>Loading authors...</MDBCardTitle>
+                      </MDBCardBody>
+                    </MDBCard>
                 </React.Fragment>
             );
         }
@@ -66,34 +73,36 @@ class Authors extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card body className='m-3 mx-5 px-3'>
-                        Error: {error.message}
-                    </Card>
+                    <MDBCard>
+                      <MDBCardBody>
+                        <MDBCardTitle>Error: {error.message}</MDBCardTitle>
+                      </MDBCardBody>
+                    </MDBCard>
                 </React.Fragment>
             );
         }
          return (
             <React.Fragment>
                 <NavBar />
-                <Card body className='m-3 mx-5 px-3'>
+                <MDBCard alignment='center'>
                 
                 <h1 style={{ margin: '20px' }}>Author  List</h1>
                 { authors.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         {authors.map(author => (
-                            <Card key={author.id} body className='m-3' style={{ width: '18rem' }}>
-                                <Card.Body>
-                                        <Card.Title>{author.full_name}</Card.Title>
-                                </Card.Body>
-                                <Button className='primary' onClick={() => this.handleInfoButton(author.id)}>View Info</Button>
-                            </Card>
+                            <MDBCard key={author.id} body className='m-3' style={{ width: '20rem' }}>
+                                <MDBCardBody>
+                                        <MDBCardTitle>{author.full_name}</MDBCardTitle>
+                                </MDBCardBody>
+                                <MDBBtn className='primary' onClick={() => this.handleInfoButton(author.id)}>View Info</MDBBtn>
+                            </MDBCard>
                         ))}
                     </div>
                     ) : (
                         <p>No authors found.</p>
                     )
                     }
-                </Card>
+                </MDBCard>
             </React.Fragment>
         )
     }

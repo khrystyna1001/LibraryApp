@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
 import { getItems } from '../api';
+import { 
+    MDBListGroup,
+    MDBCard,
+    MDBCardBody,
+    MDBCardTitle,
+    MDBBtn,
+    MDBListGroupItem 
+} 
+from 'mdb-react-ui-kit';
 
 import withRouter from '../utils/withRouter';
 
@@ -56,9 +63,11 @@ class Books extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card body className='m-3 mx-5 px-3'>
-                        Loading books...
-                    </Card>
+                    <MDBCard>
+                      <MDBCardBody>
+                        <MDBCardTitle>Loading books...</MDBCardTitle>
+                      </MDBCardBody>
+                    </MDBCard>
                 </React.Fragment>
             );
         }
@@ -67,46 +76,48 @@ class Books extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card body className='m-3 mx-5 px-3'>
-                        Error: {error.message}
-                    </Card>
+                    <MDBCard>
+                      <MDBCardBody>
+                        <MDBCardTitle>Error: {error.message}</MDBCardTitle>
+                      </MDBCardBody>
+                    </MDBCard>
                 </React.Fragment>
             );
         }
         return (
             <React.Fragment>
                 <NavBar />
-                <Card body className='m-3 mx-5 px-3'>
+                <MDBCard alignment='center'>
                 
-                <h1 style={{ margin: '20px' }}>Book List</h1>
+                <h1 style={{ margin: '50px' }}>Book List</h1>
                 { books.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         {books.map(book => (
-                            <Card key={book.id} body className='m-3' style={{ width: '18rem' }}>
-                                <Card.Body>
-                                        <Card.Title>{book.title}</Card.Title>
+                            <MDBCard key={book.id} body className='m-4' style={{ width: '20rem' }}>
+                                <MDBCardBody>
+                                        <MDBCardTitle>{book.title}</MDBCardTitle>
                                             {Array.isArray(book.author) && book.author.length > 0 ? (
-                                                <ul>
+                                                <MDBListGroup light>
                                                     {book.author.map((authorObj, index) => (
-                                                        <li key={book.id}>
+                                                        <MDBListGroupItem key={book.id}>
                                                             {authorObj.full_name || `${authorObj.first_name} ${authorObj.last_name}`}
                                                             {index < book.author.length - 1 ? ', ' : ''}
-                                                        </li>
+                                                        </MDBListGroupItem>
                                                     ))}
-                                                </ul>
+                                                </MDBListGroup>
                                             ) : (
                                                 <span></span>
                                         )}
-                                </Card.Body>
-                                <Button className='primary' onClick={() => this.handleInfoButton(book.id)}>View Info</Button>
-                            </Card>
+                                </MDBCardBody>
+                                <MDBBtn className='primary' onClick={() => this.handleInfoButton(book.id)}>View Info</MDBBtn>
+                            </MDBCard>
                         ))}
                     </div>
                     ) : (
                         <p>No books found.</p>
                     )
                     }
-                </Card>
+                </MDBCard>
             </React.Fragment>
         )
     }

@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
+
+import { 
+    MDBListGroup,
+    MDBCard,
+    MDBCardBody,
+    MDBCardTitle,
+    MDBBtn,
+    MDBListGroupItem 
+} from 'mdb-react-ui-kit'
 
 import withRouter from '../utils/withRouter';
 import { getItem } from '../api';
@@ -62,9 +69,11 @@ class Author extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card body className='m-3 mx-5 px-3'>
-                        Loading author info...
-                    </Card>
+                    <MDBCard>
+                      <MDBCardBody>
+                        <MDBCardTitle>Loading author info...</MDBCardTitle>
+                      </MDBCardBody>
+                    </MDBCard>
                 </React.Fragment>
             );
         }
@@ -73,34 +82,36 @@ class Author extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card body className='m-3 mx-5 px-3'>
-                        Error: {error.message}
-                    </Card>
+                    <MDBCard>
+                      <MDBCardBody>
+                        <MDBCardTitle>Error: {error.message}</MDBCardTitle>
+                      </MDBCardBody>
+                    </MDBCard>
                 </React.Fragment>
             );
         }
         return (
             <React.Fragment>
                 <NavBar />
-                <Card key={author.id} body className='m-3 mx-5 px-3'>
+                <MDBCard key={author.id}>
                     <div style={{ margin: '20px' }}>
-                        <Card.Title>{author.full_name}</Card.Title>
-                                <Card.Body>
+                        <MDBCardTitle>{author.full_name}</MDBCardTitle>
+                                <MDBCardBody>
                                             {author.books_written && author.books_written.length > 0 ? (
-                                                <ul>
+                                                <MDBListGroup light>
                                                     {author.books_written.map(book => (
-                                                        <li key={book.id} onClick={() => this.handleBookButton(book.id)}>
+                                                        <MDBListGroupItem key={book.id} onClick={() => this.handleBookButton(book.id)}>
                                                             {book.title} (Published at: {book.published_date})
-                                                        </li>
+                                                        </MDBListGroupItem>
                                                     ))}
-                                                </ul>
+                                                </MDBListGroup>
                                             ) : (
                                                 <span>No data</span>
                                         )}
-                            </Card.Body>
-                        <Button className='primary' onClick={this.handleAuthorListButton}>Go back to author list</Button>
+                            </MDBCardBody>
+                        <MDBBtn className='primary' onClick={this.handleAuthorListButton}>Go back to author list</MDBBtn>
                     </div>
-                </Card>
+                </MDBCard>
             </React.Fragment>
         )
     }
