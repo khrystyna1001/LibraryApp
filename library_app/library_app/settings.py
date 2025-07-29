@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_yasg",
     "social_django",
+    "rest_social_auth",
     "rest_framework.authtoken",
 
     "app",
@@ -169,8 +170,24 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.88.33:3000",
 ]
 
+# TOKEN GENERATION
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_data.social_user',
+    'social_core.pipeline.strategy.associate_by_email',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.user.populate_user_details',
+    'social_core.pipeline.user.auth_allowed_by_type',
+    'social_core.pipeline.user.save_user',
+    'social_core.pipeline.user.user_details',
+    'rest_social_auth.social_core_pipeline.get_token',
+)
+
 # REST FRAMEWORK
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     )

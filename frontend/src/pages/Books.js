@@ -93,7 +93,7 @@ class Books extends Component {
                 { books.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         {books.map(book => (
-                            <MDBCard key={book.id} body className='m-4' style={{ width: '20rem' }}>
+                            <MDBCard key={book.id} body className='m-4' style={{ width: '19rem' }}>
                                 <MDBCardBody>
                                         <MDBCardTitle>{book.title}</MDBCardTitle>
                                             {Array.isArray(book.author) && book.author.length > 0 ? (

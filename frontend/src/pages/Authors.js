@@ -86,7 +86,7 @@ class Authors extends Component {
                 <NavBar />
                 <MDBCard alignment='center'>
                 
-                <h1 style={{ margin: '20px' }}>Author  List</h1>
+                <h1 style={{ margin: '50px' }}>Author  List</h1>
                 { authors.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         {authors.map(author => (
