@@ -11,7 +11,7 @@ router.register(r'', CurrentUsersView)
 
 urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('auth/', include('rest_social_auth.urls_token')),
+    path('api/login/', obtain_auth_token),
     path('user/', include(router.urls), name='users'),
     path('user/me', UserDetailsView.as_view(), name='user_details')
 ]

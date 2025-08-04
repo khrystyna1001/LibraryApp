@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import FacebookLogin from 'react-facebook-login';
 import {
   MDBInput,
-  MDBBtn,
-  MDBIcon
+  MDBBtn
 } from 'mdb-react-ui-kit';
 import withRouter from '../utils/withRouter';
 import { getUserData } from '../api';
@@ -17,42 +16,19 @@ function Login(props) {
     setFormValue(newValue);
   };
 
-  const handleFacebookCallback = async (response) => {
-    if (response?.status === "unknown") {
-        console.error('Sorry!', 'Something went wrong with facebook Login.');
-     return;
+const handleFacebookCallback = async (response) => {
+  console.log(response)
+    try {
+        await axios.post("http://localhost:8000/user/", {"username": response.name.split('')[0]})
+        // await axios.post
+        localStorage.setItem('token', response.accessToken)
+        console.log("Token stored in localStorage:", formValue);
+        props.router.navigate("/");
+    } catch (e) {
+        console.log(e)
+      }
     }
-    console.log("Facebook Response:", response);
-
-    if (response.accessToken) {
-        try {
-            const backendResponse = await axios.post(
-                `http://localhost:8000/auth/social/token_user/facebook/`,
-                { access_token: response.accessToken },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            if (backendResponse.status === 200) {
-                const { key } = backendResponse.data; 
-                localStorage.setItem('token', key);
-                console.log("Django Token stored in localStorage:", key);
-                props.router.navigate("/");
-            } else {
-                console.warn("Unexpected backend response status:", backendResponse.status);
-            }
-
-        } catch (err) {
-            console.error("Failed to exchange Facebook token for Django token:", err);
-        }
-    } else {
-        console.error("No Facebook access token in response.");
-        alert("Facebook login failed. No access token received.");
-    }
-  }
+  
 
   const handleLogIn = async (e) => {
       e.preventDefault();
@@ -83,9 +59,11 @@ function Login(props) {
             <MDBIcon fab icon='facebook-f' /> */}
               <FacebookLogin 
               appId="713417228147118"
-              autoLoad={false}  
+              autoLoad={true}  
               fields="name,email,picture"  
-              callback={handleFacebookCallback}/>
+              callback={handleFacebookCallback}
+              responseType="token"
+              />
           {/* </MDBBtn> */}
         </div>
       </form>

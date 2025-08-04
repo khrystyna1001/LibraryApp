@@ -149,13 +149,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTHENTICATION_BACKENDS = [
     'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.facebook.FacebookAppOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 ]
-
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_URL = 'logout'
-LOGOUT_REDIRECT_URL = 'login'
 
 SOCIAL_AUTH_FACEBOOK_KEY = "713417228147118"
 SOCIAL_AUTH_FACEBOOK_SECRET = "0a3e195be09c94f1ec03972aa7359724"
@@ -172,23 +168,27 @@ CORS_ALLOWED_ORIGINS = [
 
 # TOKEN GENERATION
 SOCIAL_AUTH_PIPELINE = (
-    'social_core.pipeline.social_data.social_user',
-    'social_core.pipeline.strategy.associate_by_email',
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.user.create_user',
-    'social_core.pipeline.user.populate_user_details',
-    'social_core.pipeline.user.auth_allowed_by_type',
-    'social_core.pipeline.user.save_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
-    'rest_social_auth.social_core_pipeline.get_token',
 )
 
+LOGIN_REDIRECT_URL = 'http://localhost:3000/'
+SOCIAL_AUTH_COMPLETE_URL_NAME = 'complete'
+
+
 # REST FRAMEWORK
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    )
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework.authentication.TokenAuthentication',
+#     ),
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAuthenticated',
+#     )
+# }
