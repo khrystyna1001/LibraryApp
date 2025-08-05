@@ -10,24 +10,82 @@ import axios from 'axios';
 
 function Login(props) {
   const [formValue, setFormValue] = useState("");
+  const [message, setMessage] = useState('');
 
   const onFormChange = (e) => {
     const newValue = e.target.value;
     setFormValue(newValue);
   };
 
-const handleFacebookCallback = async (response) => {
-  console.log(response)
-    try {
-        await axios.post("http://localhost:8000/user/", {"username": response.name.split('')[0]})
-        // await axios.post
-        localStorage.setItem('token', response.accessToken)
-        console.log("Token stored in localStorage:", formValue);
-        props.router.navigate("/");
-    } catch (e) {
-        console.log(e)
+  function Str_Random(length) {
+    let result = '';
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    
+    for (let i = 0; i < length; i++) {
+        const randomInd = Math.floor(Math.random() * characters.length);
+        result += characters.charAt(randomInd);
+    }
+    return result;
+  }
+
+  const handleFacebookCallback = async (response) => {
+
+    if (!response.accessToken) {
+      console.log("Facebook login failed or was canceled.");
+      setMessage('Facebook login failed or was canceled.');
+      return;
+    }
+    setMessage('Facebook login successful. Processing...');
+  
+    const users = await axios.get('http://localhost:8000/user/');
+    const usersArray = Object.values(users.data);
+
+    const username = response.name.split(" ")[0];
+    const password = Str_Random(15);
+
+    const userExists = usersArray.find(user => user.username === username);
+
+    if (userExists) {
+      console.log("USER EXISTS, attempting to log in...");
+      
+      try {
+          await axios.patch(`http://localhost:8000/user/${userExists.id}/`, {
+              "password": password
+          });
+
+          const loginToken = await axios.post("http://localhost:8000/api/login/", {
+              "username": userExists.username,
+              "password": password
+          });
+
+          localStorage.setItem('token', loginToken.data.token);
+          props.router.navigate("/");
+      } catch (e) {
+          console.error("Failed to log in existing user:", e);
+      }
+
+    } else {
+      console.log("USER DOESN'T EXIST, creating a new user...");
+      
+      try {
+        const newUserResponse = await axios.post("http://localhost:8000/user/", {
+          "username": username,
+          "password": password
+        });
+
+        if (newUserResponse) {
+            const loginToken = await axios.post("http://localhost:8000/api/login/", {
+              "username": userExists.username,
+              "password": password
+            });
+            localStorage.setItem('token', loginToken.data.token);
+            props.router.navigate("/");
+        }
+      } catch (e) {
+        console.error("Failed to create new user or get login token:", e);
       }
     }
+ };
   
 
   const handleLogIn = async (e) => {
@@ -59,10 +117,15 @@ const handleFacebookCallback = async (response) => {
             <MDBIcon fab icon='facebook-f' /> */}
               <FacebookLogin 
               appId="713417228147118"
-              autoLoad={true}  
+              autoLoad={false}  
               fields="name,email,picture"  
               callback={handleFacebookCallback}
               responseType="token"
+              render={
+                renderProps => (
+                  <button onClick={renderProps.onClick}>This is my custom FB button</button>
+                )
+              }
               />
           {/* </MDBBtn> */}
         </div>
