@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import FacebookLogin from 'react-facebook-login';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import {
   MDBInput,
-  MDBBtn
+  MDBBtn,
+  MDBIcon
 } from 'mdb-react-ui-kit';
 import withRouter from '../utils/withRouter';
 import { getUserData } from '../api';
@@ -10,7 +11,6 @@ import axios from 'axios';
 
 function Login(props) {
   const [formValue, setFormValue] = useState("");
-  const [message, setMessage] = useState('');
 
   const onFormChange = (e) => {
     const newValue = e.target.value;
@@ -32,10 +32,8 @@ function Login(props) {
 
     if (!response.accessToken) {
       console.log("Facebook login failed or was canceled.");
-      setMessage('Facebook login failed or was canceled.');
       return;
     }
-    setMessage('Facebook login successful. Processing...');
   
     const users = await axios.get('http://localhost:8000/user/');
     const usersArray = Object.values(users.data);
@@ -92,10 +90,14 @@ function Login(props) {
       e.preventDefault();
       
       try {
-        await getUserData(formValue);
-        localStorage.setItem('token', formValue);
-        console.log("Token stored in localStorage:", formValue);
-        props.router.navigate("/");
+        const response = await getUserData(formValue);
+        if (response) {
+          localStorage.setItem('token', formValue);
+          console.log("Token stored in localStorage:", formValue);
+          props.router.navigate("/");
+        } else {
+          console.log("Failed to fetch user data")
+        }
       } catch (err) {
           console.error("Failed to fetch user data");
       }
@@ -112,22 +114,18 @@ function Login(props) {
 
         <div className='text-center'>
           <p>Sign in with:</p>
-        
-          {/* <MDBBtn floating color="secondary" className='mx-1' onClick={handleFbButton}>
-            <MDBIcon fab icon='facebook-f' /> */}
-              <FacebookLogin 
+          <FacebookLogin 
               appId="713417228147118"
               autoLoad={false}  
               fields="name,email,picture"  
               callback={handleFacebookCallback}
               responseType="token"
-              render={
-                renderProps => (
-                  <button onClick={renderProps.onClick}>This is my custom FB button</button>
-                )
-              }
-              />
-          {/* </MDBBtn> */}
+              render={renderProps => (
+                <MDBBtn floating color="secondary" className='mx-1' onClick={renderProps.onClick}>
+                  <MDBIcon fab icon='facebook-f' />
+                </MDBBtn>
+              )}
+          />
         </div>
       </form>
     </div>

@@ -70,7 +70,7 @@ function NavBar(props) {
 
     return (
         <React.Fragment>
-            <MDBNavbar expand='lg' dark bgColor='dark'>
+            <MDBNavbar expand='lg' className='bg-secondary fixed-top'>
             <MDBContainer fluid>
                 <MDBNavbarBrand href='/'>Hello {user ? user.username : ''}</MDBNavbarBrand>
 

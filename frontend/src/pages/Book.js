@@ -11,7 +11,7 @@ import {
 } from 'mdb-react-ui-kit'
 
 import withRouter from '../utils/withRouter';
-import { getItem } from '../api';
+import { getItem, getUserData } from '../api';
 
 
 class Book extends Component {
@@ -21,8 +21,29 @@ class Book extends Component {
           book: {},
           error: null,
           loading: true,
+          user: {},
         };
     }
+
+    fetchUserData = async () => {
+            
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            console.log("No token found, redirecting to login.");
+            this.props.router.navigate("/login/");
+            return;
+        }
+            
+        try {
+            const userData = await getUserData(token); 
+            this.setState({
+                user: userData
+            });
+        } catch (e) {
+            console.error("Failed to fetch user data")
+            } 
+        }
 
     handleBookListButton = () => {
         this.props.router.navigate("/books/");
@@ -34,7 +55,9 @@ class Book extends Component {
 
     async componentDidMount() {
         try {
+            this.fetchUserData()
             const token = localStorage.getItem('token');
+            
             const { bookID } = this.props.router.params;
 
             const fetchedBook = await getItem('book', bookID, token);
@@ -63,7 +86,7 @@ class Book extends Component {
     }
 
     render() {
-        const { book, error, loading } = this.state;
+        const { book, error, loading, user } = this.state;
 
         if (loading) {
             return (
@@ -111,6 +134,10 @@ class Book extends Component {
                                         ) : (
                                             <span>No author information available</span>
                                     )}
+                                    {book.is_available ? 
+                                        <p className='text-success'>AVAILABLE</p> : 
+                                        <p className='text-danger'>NOT AVAILABLE</p>
+                                    }
                                     {book.description}
                                     <br></br>
                                     <br></br>
@@ -122,8 +149,18 @@ class Book extends Component {
                         <div style={{ margin: '10px' }}>
                             <MDBBtn className='primary' onClick={this.handleBookListButton}>Go back to book list</MDBBtn>
                             <MDBBtn className='primary mx-3' onClick={this.handleAuthorListButton}>Go back to author list</MDBBtn>
-
-                            <MDBBtn className='primary mx-3' onClick={this.handleBorrowButton}>Borrow Book</MDBBtn>
+                            {/*VISITOR UI*/}
+                            {book.is_available && this.state.user.groups[0] === 3 ? 
+                                <MDBBtn className='primary mx-3' onClick={this.handleBorrowButton}> Borrow Book</MDBBtn> :
+                                <></>
+                            }
+                            {/*LIBARARIAN / ADMIN UI*/}
+                            {book.is_available && this.state.user.groups[0] !== 3 ? 
+                                <>
+                                    <MDBBtn className='primary mx-2' onClick={this.handleIssueButton}> Issue Book</MDBBtn>
+                                    <MDBBtn className='primary mx-1' onClick={this.handleEditButton}> Edit Book</MDBBtn></> :
+                                <></>
+                            }
                         </div>
             </React.Fragment>
         )

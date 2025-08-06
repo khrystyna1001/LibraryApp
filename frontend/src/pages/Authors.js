@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
+import Pagination from '../components/Pagination';
+import Footer from '../components/Footer';
 import { 
     MDBCard,
     MDBCardBody,
@@ -16,6 +18,8 @@ class Authors extends Component {
         super(props);
         this.state = {
           authors: [],
+          currentPage: 1,
+          itemsPerPage: 8,
           error: null,
           loading: true,
         };
@@ -23,6 +27,12 @@ class Authors extends Component {
 
     handleInfoButton = (authorID) => {
         this.props.router.navigate(`/authors/${authorID}`);
+    }
+
+    paginate = (pageNumber) => {
+        this.setState({
+            currentPage: pageNumber
+        })
     }
 
     async componentDidMount() {
@@ -54,7 +64,11 @@ class Authors extends Component {
 }
 
     render() {
-        const {  authors, error, loading } = this.state;
+        const {  authors, error, loading, currentPage, itemsPerPage } = this.state;
+
+        const indexOfLastAuthor = currentPage * itemsPerPage;
+        const indexOfFirstAuthor = indexOfLastAuthor - itemsPerPage;
+        const currentAuthors = authors.slice(indexOfFirstAuthor, indexOfLastAuthor);
 
         if (loading) {
             return (
@@ -89,7 +103,7 @@ class Authors extends Component {
                 <h1 style={{ margin: '50px' }}>Author  List</h1>
                 { authors.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                        {authors.map(author => (
+                        {currentAuthors.map(author => (
                             <MDBCard key={author.id} body className='m-3' style={{ width: '20rem' }}>
                                 <MDBCardBody>
                                         <MDBCardTitle>{author.full_name}</MDBCardTitle>
@@ -102,7 +116,14 @@ class Authors extends Component {
                         <p>No authors found.</p>
                     )
                     }
+                <Pagination
+                    itemsPerPage={itemsPerPage}
+                    totalItems={authors.length}
+                    paginate={this.paginate}
+                    currentPage={currentPage} 
+                />
                 </MDBCard>
+                <Footer />
             </React.Fragment>
         )
     }
