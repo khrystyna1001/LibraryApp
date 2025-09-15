@@ -69,8 +69,8 @@ function NavBar(props) {
     }
 
     return (
-        <React.Fragment>
-            <MDBNavbar expand='lg' className='bg-secondary fixed-top'>
+        <div>
+            <MDBNavbar expand='lg' className='bg-secondary top'>
             <MDBContainer fluid>
                 <MDBNavbarBrand href='/'>Hello {user ? user.username : ''}</MDBNavbarBrand>
 
@@ -116,7 +116,7 @@ function NavBar(props) {
                 <MDBBtn color='primary' onClick={handleLogout}>Log Out</MDBBtn>
             </MDBContainer>
         </MDBNavbar>
-    </React.Fragment>
+    </div>
   );
 }
 

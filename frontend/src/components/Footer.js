@@ -9,7 +9,8 @@ import {
 
 function Footer() {
     return(
-        <MDBFooter className='bg-secondary fixed-bottom'>
+        <div>
+        <MDBFooter className='bg-secondary bottom'>
         <MDBContainer className='p-4'>
             <MDBRow>
                 <h5 className='text-uppercase'>Footer Content</h5>
@@ -22,6 +23,7 @@ function Footer() {
             </MDBRow>
         </MDBContainer>
     </MDBFooter>
+    </div>
     )
 }
 

@@ -1,13 +1,18 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from app.serializer import UserSerializer
+from django.contrib.auth.models import User, Group
+from app.serializer import UserSerializer, PermissionsSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 
 # Create your views here.
+
+class PermissionsViewSet(viewsets.ModelViewSet):
+    serializer_class = PermissionsSerializer
+    queryset = Group.objects.all()
+    authentication_classes = (TokenAuthentication,)
 
 class CurrentUsersView(viewsets.ModelViewSet):
     serializer_class = UserSerializer

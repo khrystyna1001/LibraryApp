@@ -1,3 +1,4 @@
+import '../App.css'
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import Pagination from '../components/Pagination';
@@ -11,13 +12,12 @@ import {
     MDBBtn,
     MDBListGroupItem, 
     MDBCardText,
-    MDBCol,
-    MDBRow
+    MDBRow,
+    MDBCol
 } 
 from 'mdb-react-ui-kit';
 
 import withRouter from '../utils/withRouter';
-
 
 class Books extends Component {
     constructor(props) {
@@ -102,24 +102,23 @@ class Books extends Component {
             );
         }
         return (
-            <React.Fragment>
+            <div className="main-container">
                 <NavBar />
-                <MDBCard alignment='center'>
-                
-                <h1 style={{ margin: '50px' }}>Book List</h1>
-                <MDBRow>
-                <MDBCol className='col-md-4'>
+                <div className="list-container">
+                    <h1 className="header-text">Book List</h1>
                     { books.length > 0 ? 
-                        (currentBooks.map(book => (
-                            <MDBCard key={book.id} body className='m-4'>
+                    (<MDBRow className='row-cols-1 row-cols-md-2 row-cols-lg-4 g-4'>
+                    {currentBooks.map(book => (
+                        <MDBCol key={book.id} className='mb-4'>
+                            <MDBCard className='h-100'>
                                 <MDBCardBody>
-                                        <MDBCardTitle>{book.title}</MDBCardTitle>
-                                        <MDBCardText>{book.is_available ? 
-                                            <p className='text-success'>AVAILABLE</p> : <p className='text-danger'>NOT AVAILABLE</p>}</MDBCardText>
+                                    <MDBCardTitle>{book.title}</MDBCardTitle>
+                                    <MDBCardText>{book.is_available ? 
+                                        <p className='text-success'>AVAILABLE</p> : <p className='text-danger'>NOT AVAILABLE</p>}</MDBCardText>
                                             {Array.isArray(book.author) && book.author.length > 0 ? (
                                                 <MDBListGroup light>
                                                     {book.author.map((authorObj, index) => (
-                                                        <MDBListGroupItem key={book.id}>
+                                                        <MDBListGroupItem key={authorObj.id}>
                                                             {authorObj.full_name || `${authorObj.first_name} ${authorObj.last_name}`}
                                                             {index < book.author.length - 1 ? ', ' : ''}
                                                         </MDBListGroupItem>
@@ -127,27 +126,25 @@ class Books extends Component {
                                                 </MDBListGroup>
                                             ) : (
                                                 <span></span>
-                                        )}
-                                </MDBCardBody>
-                                <MDBBtn className='primary' onClick={() => this.handleInfoButton(book.id)}>View Info</MDBBtn>
-                            </MDBCard>
-                          ))
+                                            )}
+                                        </MDBCardBody>
+                                    <MDBBtn className='primary' onClick={() => this.handleInfoButton(book.id)}>View Info</MDBBtn>
+                                </MDBCard>
+                            </MDBCol>
+                            ))}
+                            </MDBRow>
                         ) : (
                             <p>No books found.</p>
-                        )
-                        
-                        } 
-                        </MDBCol>
-                    </MDBRow>
+                        )}
                     <Pagination
                     itemsPerPage={itemsPerPage}
                     totalItems={books.length}
                     paginate={this.paginate}
                     currentPage={currentPage} 
                     />
-                </MDBCard>
+                </div>
                 <Footer />
-            </React.Fragment>
+            </div>
         )
     }
 }

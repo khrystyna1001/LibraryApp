@@ -1,3 +1,4 @@
+import '../App.css'
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import Pagination from '../components/Pagination';
@@ -6,7 +7,9 @@ import {
     MDBCard,
     MDBCardBody,
     MDBCardTitle,
-    MDBBtn
+    MDBBtn,
+    MDBRow,
+    MDBCol,
 } 
 from 'mdb-react-ui-kit';
 import { getItems } from '../api';
@@ -97,33 +100,36 @@ class Authors extends Component {
         }
          return (
             <React.Fragment>
+                <div className="main-container">
                 <NavBar />
-                <MDBCard alignment='center'>
-                
-                <h1 style={{ margin: '50px' }}>Author  List</h1>
-                { authors.length > 0 ? (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                        {currentAuthors.map(author => (
-                            <MDBCard key={author.id} body className='m-3' style={{ width: '20rem' }}>
-                                <MDBCardBody>
-                                        <MDBCardTitle>{author.full_name}</MDBCardTitle>
-                                </MDBCardBody>
-                                <MDBBtn className='primary' onClick={() => this.handleInfoButton(author.id)}>View Info</MDBBtn>
-                            </MDBCard>
-                        ))}
+                    <div className="list-container">
+                        <h1 className="header-text">Author  List</h1>
+                        { authors.length > 0 ? (
+                            <MDBRow className='row-cols-1 row-cols-md-2 row-cols-lg-4 g-4'>
+                                {currentAuthors.map(author => (
+                                    <MDBCol key={author.id} className='mb-4'>
+                                        <MDBCard className='h-100'>
+                                            <MDBCardBody>
+                                                    <MDBCardTitle>{author.full_name}</MDBCardTitle>
+                                            </MDBCardBody>
+                                            <MDBBtn className='primary' onClick={() => this.handleInfoButton(author.id)}>View Info</MDBBtn>
+                                        </MDBCard>
+                                    </MDBCol>
+                                ))}
+                            </MDBRow>
+                            ) : (
+                                <p>No authors found.</p>
+                            )
+                        }
+                        <Pagination
+                            itemsPerPage={itemsPerPage}
+                            totalItems={authors.length}
+                            paginate={this.paginate}
+                            currentPage={currentPage} 
+                        />
                     </div>
-                    ) : (
-                        <p>No authors found.</p>
-                    )
-                    }
-                <Pagination
-                    itemsPerPage={itemsPerPage}
-                    totalItems={authors.length}
-                    paginate={this.paginate}
-                    currentPage={currentPage} 
-                />
-                </MDBCard>
                 <Footer />
+                </div>
             </React.Fragment>
         )
     }
