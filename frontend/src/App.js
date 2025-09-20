@@ -6,6 +6,8 @@ import About from './pages/About';
 import Book from './pages/Book';
 import Author from './pages/Author';
 import Login from './pages/Login';
+import PrivateRoute from './utils/privateRoute';
+import Admin from './pages/Admin';
 
 import { Route, Routes } from 'react-router-dom';
 
@@ -21,6 +23,10 @@ function App() {
           <Route path='/authors/' Component={Authors}></Route>
           <Route path='/books/:bookID/' Component={Book}></Route>
           <Route path='/authors/:authorID/' Component={Author}></Route>
+          
+          <Route element={<PrivateRoute allowedRoles={['Admin']} />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
         </Routes>
       </header>
     </div>

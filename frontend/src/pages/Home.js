@@ -49,12 +49,12 @@ class Home extends Component {
                 <form className='form-container'>
                     <h1 className='header-text'>User Profile</h1>
 
-                    <MDBInput className='my-4' label='Username' value={user ? user.username : ''} />
+                    <MDBInput className='my-4' label='Username' value={user ? user.username : ''}/>
                     <MDBInput className='my-4' label='Group' value={user ? user.groups : ''} />
 
-                    {/* <MDBBtn type='submit' block>
+                    <MDBBtn type='submit' block>
                         Update
-                    </MDBBtn> */}
+                    </MDBBtn>
                 </form>
             </React.Fragment>
         )
