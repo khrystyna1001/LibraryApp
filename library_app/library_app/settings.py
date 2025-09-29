@@ -165,6 +165,15 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.88.33:3000",
 ]
 
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
 # TOKEN GENERATION
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',

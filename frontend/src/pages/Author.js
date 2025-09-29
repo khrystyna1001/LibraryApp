@@ -37,7 +37,7 @@ class Author extends Component {
             const token = localStorage.getItem('token');
             const { authorID } = this.props.router.params;
 
-            const fetchedAuthor = await getItem('author', authorID, token);
+            const fetchedAuthor = await getItem('authors', authorID, token);
             console.log(fetchedAuthor)
 
             if (typeof fetchedAuthor === 'object' && fetchedAuthor !== null && !Array.isArray(fetchedAuthor)) {

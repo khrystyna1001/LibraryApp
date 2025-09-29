@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+const API_URL = "http://localhost:8000"
+
 async function getUserData(token) {
 
       if (!token) {
@@ -15,7 +17,7 @@ async function getUserData(token) {
       }
       
       try {
-        const response = await axios.get(`http://localhost:8000/user/me`, {
+        const response = await axios.get(`${API_URL}/user/me`, {
           headers: requestHeaders
         });
         
@@ -39,7 +41,7 @@ async function getItem(item, ID, token) {
             "Authorization": `Token ${token}`
         }
 
-        const response = await axios.get(`http://localhost:8000/${item}s/${ID}/`, {
+        const response = await axios.get(`${API_URL}/${item}/${ID}/`, {
             headers: requestHeaders
         });
         return response.data;
@@ -56,7 +58,7 @@ async function getItems(item, token) {
             "Authorization": `Token ${token}`
         }
 
-        const response = await axios.get(`http://localhost:8000/${item}s/`, {
+        const response = await axios.get(`${API_URL}/${item}/`, {
             headers: requestHeaders
         });
         
@@ -66,4 +68,34 @@ async function getItems(item, token) {
     }
 }
 
-export { getItem, getItems, getUserData };
+async function updateItem(item, ID, token, user_name, user_role, user_password) {
+    try {
+
+        const requestHeaders = {
+            "Content-Type": "application/json",
+            "Authorization": `Token ${token}`
+        }
+
+        const data = {
+            "username": user_name,
+            "groups": [user_role]
+        };
+
+        if (user_password && user_password.trim() !== "") {
+            data.password = user_password;
+        }
+
+        const response = await axios.patch(`${API_URL}/${item}/${ID}/`, 
+        data,
+        {
+            headers: requestHeaders
+        });
+        return response.data;
+
+    } catch (error) {
+        console.error(`Failed to fetch ${item}:`, error);
+        throw error;
+    }
+}
+
+export { getItem, getItems, getUserData, updateItem };

@@ -45,7 +45,7 @@ class Books extends Component {
         try {
 
             const token = localStorage.getItem('token');
-            const fetchedBooks = await getItems('book', token)
+            const fetchedBooks = await getItems('books', token)
 
             if (Array.isArray(fetchedBooks)) {
                 this.setState({

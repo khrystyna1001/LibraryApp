@@ -60,7 +60,7 @@ class Book extends Component {
             
             const { bookID } = this.props.router.params;
 
-            const fetchedBook = await getItem('book', bookID, token);
+            const fetchedBook = await getItem('books', bookID, token);
             console.log(fetchedBook)
 
             if (typeof fetchedBook === 'object' && fetchedBook !== null && !Array.isArray(fetchedBook)) {
@@ -150,12 +150,12 @@ class Book extends Component {
                             <MDBBtn className='primary' onClick={this.handleBookListButton}>Go back to book list</MDBBtn>
                             <MDBBtn className='primary mx-3' onClick={this.handleAuthorListButton}>Go back to author list</MDBBtn>
                             {/*VISITOR UI*/}
-                            {book.is_available && this.state.user.groups[0] === 3 ? 
+                            {book.is_available && user.groups[0] === 3 ? 
                                 <MDBBtn className='primary mx-3' onClick={this.handleBorrowButton}> Borrow Book</MDBBtn> :
                                 <></>
                             }
                             {/*LIBARARIAN / ADMIN UI*/}
-                            {book.is_available && this.state.user.groups[0] !== 3 ? 
+                            {book.is_available && user.groups[0] !== 3 ? 
                                 <>
                                     <MDBBtn className='primary mx-2' onClick={this.handleIssueButton}> Issue Book</MDBBtn>
                                     <MDBBtn className='primary mx-1' onClick={this.handleEditButton}> Edit Book</MDBBtn></> :

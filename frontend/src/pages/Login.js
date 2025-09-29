@@ -52,7 +52,7 @@ function Login(props) {
           });
 
           const loginToken = await axios.post("http://localhost:8000/api/login/", {
-              "username": userExists.username,
+              "username": username,
               "password": password
           });
 
@@ -73,11 +73,13 @@ function Login(props) {
 
         if (newUserResponse) {
             const loginToken = await axios.post("http://localhost:8000/api/login/", {
-              "username": userExists.username,
-              "password": password
+              "username": username,
+              "password": password 
             });
             localStorage.setItem('token', loginToken.data.token);
             props.router.navigate("/");
+        } else {
+            console.log("Backend failed to return token creation")
         }
       } catch (e) {
         console.error("Failed to create new user or get login token:", e);

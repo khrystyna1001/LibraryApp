@@ -42,7 +42,7 @@ class Authors extends Component {
         try {
 
             const token = localStorage.getItem('token');
-            const fetchedAuthors = await getItems('author', token);
+            const fetchedAuthors = await getItems('authors', token);
 
             if (Array.isArray(fetchedAuthors)) {
                 this.setState({

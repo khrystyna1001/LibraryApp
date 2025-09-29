@@ -15,21 +15,36 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'password', 'groups',)
-        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
+        password = validated_data.pop('password', None)
+        groups_data = validated_data.pop('groups', None)
         user = User.objects.create(**validated_data)
-        user.set_password(password)
+
+        if password:
+            user.set_password(password)
+
+        if groups_data:
+            user.groups.set(groups_data)
+            
         user.save()
         return user
 
     def update(self, instance, validated_data):
+        groups_data = validated_data.pop('groups', None)
         password = validated_data.pop('password', None)
+
         if password:
             instance.set_password(password)
-        
-        return super().update(instance, validated_data)
+
+        if groups_data is not None:
+            instance.groups.set(groups_data)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
 
 class PermissionsSerializer(serializers.ModelSerializer):
     class Meta:
