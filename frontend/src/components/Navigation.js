@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-
+import AccessControl from './AccessControl';
 import withRouter from '../utils/withRouter';
-import { getUserData } from '../api';
+import { useAuth } from '../utils/authContext';
 
 import {
     MDBContainer,
@@ -24,32 +24,11 @@ import {
 function NavBar(props) {
 
     const [dropdownTitle, setDropdownTitle] = useState('');
-    const [user, setUser] = useState({});
     const location = useLocation();
-
     const [openBasic, setOpenBasic] = useState(false);
-
+    const { user, logout } = useAuth();
 
     useEffect(() => {
-
-        const fetchUserData = async () => {
-            
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                console.log("No token found, redirecting to login.");
-                props.router.navigate("/login/");
-                return;
-            }
-            
-            try {
-                const userData = await getUserData(token); 
-                setUser(userData);
-            } catch (e) {
-                console.error("Failed to fetch user data")
-            } 
-        }
-        fetchUserData();
 
         if (location.pathname === '/books') {
             setDropdownTitle('Books');
@@ -58,15 +37,7 @@ function NavBar(props) {
         } else {
             setDropdownTitle('Books');
         }
-    }, [location.pathname, props.router, user]);
-
-    const handleLogout = () => {
-        props.router.navigate("/login/");
-        localStorage.removeItem('token');
-        setUser(null);
-        
-        console.log("USER LOGGED OUT");
-    }
+    }, [location.pathname, props.router]);
 
     return (
         <div>
@@ -86,7 +57,12 @@ function NavBar(props) {
                 <MDBCollapse navbar open={openBasic}>
                 <MDBNavbarNav className='my-2, my-lg-0, me-sm-0, my-sm-0 mx-2'>
                     <MDBNavbarItem>
-                    <MDBNavbarLink active={location.pathname === '/'} aria-current='page' href='/'>
+                    <MDBNavbarLink active={location.pathname === '/my_profile'} aria-current='page' href='/my_profile'>
+                        My Profile
+                    </MDBNavbarLink>
+                    </MDBNavbarItem>
+                    <MDBNavbarItem>
+                    <MDBNavbarLink active={location.pathname === '/home'} aria-current='page' href='/home'>
                         Home
                     </MDBNavbarLink>
                     </MDBNavbarItem>
@@ -105,6 +81,13 @@ function NavBar(props) {
                         </MDBDropdownMenu>
                     </MDBDropdown>
                     </MDBNavbarItem>
+                    <AccessControl allowedRoles={['admin']}>
+                        <MDBNavbarItem>
+                        <MDBNavbarLink active={location.pathname === '/admin'} aria-current='page' href='/admin'>
+                            Dashboard
+                        </MDBNavbarLink>
+                        </MDBNavbarItem>
+                    </AccessControl>
                 </MDBNavbarNav>
                 </MDBCollapse>
 
@@ -113,7 +96,7 @@ function NavBar(props) {
                     <MDBBtn color='primary'>Search</MDBBtn>
                 </form>
                 
-                <MDBBtn color='primary' onClick={handleLogout}>Log Out</MDBBtn>
+                <MDBBtn color='primary' onClick={logout} href='/login'>Log Out</MDBBtn>
             </MDBContainer>
         </MDBNavbar>
     </div>

@@ -1,50 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Outlet, Navigate } from "react-router-dom";
-import { getUserData } from "../api";
+import { useAuth } from "./authContext";
 
 const PrivateRoute = ({ allowedRoles }) => {
-    const [userRole, setUserRole] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setIsAuthenticated(false);
-            setIsLoading(false);
-            return;
-        }
-
-        const fetchUserRole = async () => {
-            try {
-                const userData = await getUserData(token); 
-                setUserRole(userData.groups);
-                setIsAuthenticated(true);
-            } catch (e) {
-                console.error("Failed to fetch user data", e)
-                setIsAuthenticated(false);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        fetchUserRole();
-        
-    }, []);
-
-    if (isLoading) {
-        return <div>Loading...</div>;
+    const { user, loading } = useAuth()
+    if (loading) {
+        return <div className="text-center p-8 text-indigo-600">Loading user data...</div>;
     }
-      
-    if (!isAuthenticated) {
+
+    if (!user.isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    if (userRole && allowedRoles.includes(userRole)) {
-        return <Outlet />;
-    } else {
-        return <Navigate to="/" replace />;
+    if (!allowedRoles.includes(user.role)) {
+        return <Navigate to="/unauthorized" replace />;
     }
+    
+    return <Outlet />;
 }
 
 export default PrivateRoute;

@@ -1,5 +1,4 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Home from './pages/Home';
 import Books from './pages/Books';
 import Authors from './pages/Authors';
 import About from './pages/About';
@@ -8,23 +7,29 @@ import Author from './pages/Author';
 import Login from './pages/Login';
 import PrivateRoute from './utils/privateRoute';
 import Admin from './pages/Admin';
+import UserPage from './pages/UserPage';
+import Home from './pages/Home';
+import UnauthorizedPage from './pages/Unauthorized'
 
 import { Route, Routes } from 'react-router-dom';
+
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
         <Routes>
-          <Route path='/' Component={Home}></Route>
+          <Route path='/home/' Component={Home}></Route>
+          <Route path='/my_profile/' Component={UserPage}></Route>
           <Route path='/login/' Component={Login}></Route>
           <Route path='/about/' Component={About}></Route>
           <Route path='/books/' Component={Books}></Route>
           <Route path='/authors/' Component={Authors}></Route>
           <Route path='/books/:bookID/' Component={Book}></Route>
           <Route path='/authors/:authorID/' Component={Author}></Route>
+          <Route path='/Unauthorized/' Component={UnauthorizedPage}></Route>
           
-          <Route element={<PrivateRoute allowedRoles={['Admin']} />}>
+          <Route element={<PrivateRoute allowedRoles={['admin']} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>
         </Routes>

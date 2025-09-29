@@ -10,6 +10,8 @@ import {
     MDBCardBody,
     MDBCardTitle,
     MDBBtn,
+    MDBBtnGroup,
+    MDBIcon,
     MDBListGroupItem, 
     MDBCardText,
     MDBRow,
@@ -128,7 +130,15 @@ class Books extends Component {
                                                 <span></span>
                                             )}
                                         </MDBCardBody>
-                                    <MDBBtn className='primary' onClick={() => this.handleInfoButton(book.id)}>View Info</MDBBtn>
+                                    <MDBBtnGroup shadow='0'>
+                                        <MDBBtn className='bg-info' onClick={() => this.handleInfoButton(book.id)}>View Info</MDBBtn>
+                                        <MDBBtn className='bg-info' onClick={() => this.handleEditButton(book.id)}>
+                                            <MDBIcon fas icon="edit" />
+                                        </MDBBtn>
+                                        <MDBBtn className='bg-danger' onClick={() => this.handleDeleteButton(book.id)}>
+                                            <MDBIcon fas icon="trash" />
+                                        </MDBBtn>
+                                    </MDBBtnGroup>
                                 </MDBCard>
                             </MDBCol>
                             ))}

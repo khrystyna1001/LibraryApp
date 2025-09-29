@@ -57,7 +57,7 @@ function Login(props) {
           });
 
           localStorage.setItem('token', loginToken.data.token);
-          props.router.navigate("/");
+          props.router.navigate("/home");
       } catch (e) {
           console.error("Failed to log in existing user:", e);
       }
@@ -77,7 +77,7 @@ function Login(props) {
               "password": password 
             });
             localStorage.setItem('token', loginToken.data.token);
-            props.router.navigate("/");
+            props.router.navigate("/home");
         } else {
             console.log("Backend failed to return token creation")
         }
@@ -96,7 +96,7 @@ function Login(props) {
         if (response) {
           localStorage.setItem('token', formValue);
           console.log("Token stored in localStorage:", formValue);
-          props.router.navigate("/");
+          props.router.navigate("/home");
         } else {
           console.log("Failed to fetch user data")
         }
