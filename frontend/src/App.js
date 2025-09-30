@@ -14,6 +14,7 @@ import { Route, Routes } from 'react-router-dom';
 import AdminBooks from './pages/AdminBooks';
 import AdminAuthors from './pages/AdminAuthors';
 import AdminUsers from './pages/AdminUsers';
+import User from './pages/User';
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path='/authors/' Component={Authors}></Route>
           <Route path='/books/:bookID/' Component={Book}></Route>
           <Route path='/authors/:authorID/' Component={Author}></Route>
+          <Route path='/user/:userID/' Component={User}></Route>
           <Route path='/Unauthorized/' Component={UnauthorizedPage}></Route>
           
           <Route element={<PrivateRoute allowedRoles={['admin']} />}>

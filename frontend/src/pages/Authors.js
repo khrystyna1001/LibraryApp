@@ -8,15 +8,21 @@ import {
     MDBCardBody,
     MDBCardTitle,
     MDBBtn,
+    MDBBtnGroup,
+    MDBIcon,
     MDBRow,
     MDBCol,
 } 
 from 'mdb-react-ui-kit';
 import { getItems } from '../api';
+import { AuthContext } from '../utils/authContext';
 
 import withRouter from '../utils/withRouter';
 
 class Authors extends Component {
+    static contextType = AuthContext;
+
+
     constructor(props) {
         super(props);
         this.state = {
@@ -39,35 +45,42 @@ class Authors extends Component {
     }
 
     async componentDidMount() {
-        try {
+        const { user } = this.context;
+        
+        if (!user.isAuthenticated) {
+             this.setState({ loading: false });
+             return;
+        }
 
+        try {
             const token = localStorage.getItem('token');
             const fetchedAuthors = await getItems('authors', token);
 
-            if (Array.isArray(fetchedAuthors)) {
+            if (typeof fetchedAuthors === 'object' && fetchedAuthors !== null) {
                 this.setState({
-                authors: fetchedAuthors,
-                loading: false,
-            });
+                    authors: fetchedAuthors,
+                    loading: false,
+                });
             } else {
-                console.error("API did not return an array for authors:", fetchedAuthors);
+                console.error("API did not return any authors:", fetchedAuthors);
                 this.setState({
                     error: new Error("Invalid data format received from API."),
                     loading: false,
                 });
             }
-
         } catch (error) {
             console.error("Failed to fetch authors:", error);
             this.setState({
                 error: error,
                 loading: false,
             });
+        }
     }
-}
 
     render() {
         const {  authors, error, loading, currentPage, itemsPerPage } = this.state;
+        const { user } = this.context; 
+        const isAdmin = user.role === 'admin'
 
         const indexOfLastAuthor = currentPage * itemsPerPage;
         const indexOfFirstAuthor = indexOfLastAuthor - itemsPerPage;
@@ -112,8 +125,21 @@ class Authors extends Component {
                                             <MDBCardBody>
                                                     <MDBCardTitle>{author.full_name}</MDBCardTitle>
                                             </MDBCardBody>
-                                            <MDBBtn className='primary' onClick={() => this.handleInfoButton(author.id)}>View Info</MDBBtn>
+                                            {isAdmin && (
+                                                <>
+                                                <MDBBtnGroup shadow='0'>
+                                                    <MDBBtn className='bg-info' onClick={() => this.handleInfoButton(author.id)}>View Info</MDBBtn>
+                                                    <MDBBtn className='bg-info' onClick={() => this.handleEditButton(author.id)}>
+                                                        <MDBIcon fas icon="edit" />
+                                                    </MDBBtn>
+                                                    <MDBBtn className='bg-danger' onClick={() => this.handleDeleteButton(author.id)}>
+                                                        <MDBIcon fas icon="trash" />
+                                                    </MDBBtn>
+                                                </MDBBtnGroup>
+                                                </>
+                                            )}
                                         </MDBCard>
+                                        
                                     </MDBCol>
                                 ))}
                             </MDBRow>

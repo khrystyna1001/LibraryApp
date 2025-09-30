@@ -18,10 +18,13 @@ import {
     MDBCol
 } 
 from 'mdb-react-ui-kit';
+import { AuthContext } from '../utils/authContext';
 
 import withRouter from '../utils/withRouter';
 
 class Books extends Component {
+    static contextType = AuthContext;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -44,6 +47,13 @@ class Books extends Component {
     }
 
     async componentDidMount() {
+        const { user } = this.context;
+        
+        if (!user.isAuthenticated) {
+             this.setState({ loading: false });
+             return;
+        }
+
         try {
 
             const token = localStorage.getItem('token');
@@ -73,6 +83,8 @@ class Books extends Component {
 
     render() {
         const { books, error, loading, currentPage, itemsPerPage } = this.state;
+         const { user } = this.context; 
+        const isAdmin = user.role === 'admin'
 
         const indexOfLastBook = currentPage * itemsPerPage;
         const indexOfFirstBook = indexOfLastBook - itemsPerPage;
@@ -132,12 +144,14 @@ class Books extends Component {
                                         </MDBCardBody>
                                     <MDBBtnGroup shadow='0'>
                                         <MDBBtn className='bg-info' onClick={() => this.handleInfoButton(book.id)}>View Info</MDBBtn>
+                                        {isAdmin && (<>
                                         <MDBBtn className='bg-info' onClick={() => this.handleEditButton(book.id)}>
                                             <MDBIcon fas icon="edit" />
                                         </MDBBtn>
                                         <MDBBtn className='bg-danger' onClick={() => this.handleDeleteButton(book.id)}>
                                             <MDBIcon fas icon="trash" />
-                                        </MDBBtn>
+                                        </MDBBtn></>
+                                        )}
                                     </MDBBtnGroup>
                                 </MDBCard>
                             </MDBCol>

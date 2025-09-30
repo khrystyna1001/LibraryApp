@@ -13,8 +13,11 @@ import { MDBTable,
          MDBBtn,
          MDBIcon
  } from "mdb-react-ui-kit";
+ import { AuthContext } from "../utils/authContext";
 
 class AdminBooks extends Component {
+    static contextType = AuthContext;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -27,6 +30,13 @@ class AdminBooks extends Component {
     }
 
     async componentDidMount() {
+        const { user } = this.context;
+        
+        if (!user.isAuthenticated) {
+             this.setState({ loading: false });
+             return;
+        }
+
         try {
             const token = localStorage.getItem('token') || 'mock-token'; 
             

@@ -14,8 +14,11 @@ import { MDBTable,
          MDBBtn,
          MDBIcon
  } from "mdb-react-ui-kit";
+ import { AuthContext } from "../utils/authContext";
 
 class AdminAuthors extends Component {
+    static contextType = AuthContext;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -31,7 +34,18 @@ class AdminAuthors extends Component {
         this.props.router.navigate(`/books/${bookID}`);
     }
 
+    handleAuthorButton = (authorId) => {
+        this.props.router.navigate(`/authors/${authorId}`);
+    }
+
     async componentDidMount() {
+        const { user } = this.context;
+        
+        if (!user.isAuthenticated) {
+             this.setState({ loading: false });
+             return;
+        }
+        
         try {
 
             const token = localStorage.getItem('token');
@@ -115,7 +129,7 @@ class AdminAuthors extends Component {
                                             )}
                                             </td>
                                             <td className="px-4 py-3 text-sm font-medium text-center">
-                                            <MDBBtn className='bg-info'>
+                                            <MDBBtn className='bg-info'  onClick={() => this.handleAuthorButton(author.id)}>
                                                 <MDBIcon fas icon="edit" />
                                             </MDBBtn>
                                             <MDBBtn className='bg-danger'>
