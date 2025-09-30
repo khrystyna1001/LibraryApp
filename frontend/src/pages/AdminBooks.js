@@ -14,7 +14,7 @@ import { MDBTable,
          MDBIcon
  } from "mdb-react-ui-kit";
 
-class Admin extends Component {
+class AdminBooks extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -81,7 +81,7 @@ class Admin extends Component {
                             <h2 className="text-xl font-semibold text-gray-700">Current Inventory ({books.length} books)</h2>
                         </div>
 
-                        <div className="overflow-x-auto rounded-lg border border-gray-200">
+                        <div className="overflow-x-auto rounded-lg border border-gray-200 rounded-9">
                             <MDBTable hover className="min-w-full divide-y divide-gray-200">
                                 <MDBTableHead>
                                     <tr>
@@ -135,4 +135,4 @@ class Admin extends Component {
     }
 }
 
-export default Admin;
+export default AdminBooks;

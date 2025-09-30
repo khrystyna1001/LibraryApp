@@ -20,3 +20,16 @@
     padding-top: 20px;
 }
 
+.custom-collapse {
+    max-height: 0;
+    overflow: hidden; 
+    transition: max-height 1s ease-in-out; 
+    z-index: 1000; 
+    position: relative;
+}
+
+.custom-collapse.open {
+    max-height: 500px; 
+}
+
+

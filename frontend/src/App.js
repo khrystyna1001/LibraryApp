@@ -6,12 +6,14 @@ import Book from './pages/Book';
 import Author from './pages/Author';
 import Login from './pages/Login';
 import PrivateRoute from './utils/privateRoute';
-import Admin from './pages/Admin';
 import UserPage from './pages/UserPage';
 import Home from './pages/Home';
 import UnauthorizedPage from './pages/Unauthorized'
 
 import { Route, Routes } from 'react-router-dom';
+import AdminBooks from './pages/AdminBooks';
+import AdminAuthors from './pages/AdminAuthors';
+import AdminUsers from './pages/AdminUsers';
 
 
 function App() {
@@ -30,7 +32,9 @@ function App() {
           <Route path='/Unauthorized/' Component={UnauthorizedPage}></Route>
           
           <Route element={<PrivateRoute allowedRoles={['admin']} />}>
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/books" element={<AdminBooks />} />
+            <Route path="/admin/authors" element={<AdminAuthors />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
           </Route>
         </Routes>
       </header>

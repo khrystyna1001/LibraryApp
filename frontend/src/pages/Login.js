@@ -8,9 +8,11 @@ import {
 import withRouter from '../utils/withRouter';
 import { getUserData } from '../api';
 import axios from 'axios';
+import { useAuth } from '../utils/authContext';
 
 function Login(props) {
   const [formValue, setFormValue] = useState("");
+  const { login } = useAuth();
 
   const onFormChange = (e) => {
     const newValue = e.target.value;
@@ -41,61 +43,59 @@ function Login(props) {
     const username = response.name.split(" ")[0];
     const password = Str_Random(15);
 
+    let userData = null;
+    let loginTokenData = null;
+
     const userExists = usersArray.find(user => user.username === username);
 
-    if (userExists) {
-      console.log("USER EXISTS, attempting to log in...");
+    try {
+      if (userExists) {
+        console.log("USER EXISTS, attempting to log in...");
       
-      try {
           await axios.patch(`http://localhost:8000/user/${userExists.id}/`, {
               "password": password
           });
 
-          const loginToken = await axios.post("http://localhost:8000/api/login/", {
+          loginTokenData = await axios.post("http://localhost:8000/api/login/", {
               "username": username,
               "password": password
           });
-
-          localStorage.setItem('token', loginToken.data.token);
-          props.router.navigate("/home");
-      } catch (e) {
-          console.error("Failed to log in existing user:", e);
-      }
-
-    } else {
+        } else {
       console.log("USER DOESN'T EXIST, creating a new user...");
-      
-      try {
         const newUserResponse = await axios.post("http://localhost:8000/user/", {
           "username": username,
           "password": password
         });
 
         if (newUserResponse) {
-            const loginToken = await axios.post("http://localhost:8000/api/login/", {
+            loginTokenData = await axios.post("http://localhost:8000/api/login/", {
               "username": username,
               "password": password 
             });
-            localStorage.setItem('token', loginToken.data.token);
-            props.router.navigate("/home");
-        } else {
-            console.log("Backend failed to return token creation")
+          }
         }
-      } catch (e) {
-        console.error("Failed to create new user or get login token:", e);
-      }
+        if (loginTokenData && loginTokenData.data.token) {
+          const token = loginTokenData.data.token;
+          userData = await getUserData(token);
+          login(userData, token);
+          props.router.navigate("/home");
+        } else {
+          console.error("Facebook login failed. No token received.");
+        }
+    } catch (e) {
+      console.error("Failed during Facebook login process:", e)
     }
- };
+  };
   
 
   const handleLogIn = async (e) => {
       e.preventDefault();
       
       try {
+        const token = formValue;
         const response = await getUserData(formValue);
         if (response) {
-          localStorage.setItem('token', formValue);
-          console.log("Token stored in localStorage:", formValue);
+          login(response, token)
           props.router.navigate("/home");
         } else {
           console.log("Failed to fetch user data")

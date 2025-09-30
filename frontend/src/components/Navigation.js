@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import AccessControl from './AccessControl';
 import withRouter from '../utils/withRouter';
 import { useAuth } from '../utils/authContext';
+import AdminSidebarToggle from './AdminNav';
 
 import {
     MDBContainer,
@@ -18,7 +19,7 @@ import {
     MDBDropdownToggle,
     MDBDropdownMenu,
     MDBDropdownItem,
-    MDBCollapse,
+    MDBCollapse
   } from 'mdb-react-ui-kit';
 
 function NavBar(props) {
@@ -37,13 +38,13 @@ function NavBar(props) {
         } else {
             setDropdownTitle('Books');
         }
-    }, [location.pathname, props.router]);
+    }, [location.pathname]);
 
     return (
         <div>
             <MDBNavbar expand='lg' className='bg-secondary top'>
             <MDBContainer fluid>
-                <MDBNavbarBrand href='/'>Hello {user ? user.username : ''}</MDBNavbarBrand>
+                <MDBNavbarBrand href='/home'>Hello {user ? user.username : ''}</MDBNavbarBrand>
 
                 <MDBNavbarToggler
                 aria-controls='navbarSupportedContent'
@@ -81,13 +82,6 @@ function NavBar(props) {
                         </MDBDropdownMenu>
                     </MDBDropdown>
                     </MDBNavbarItem>
-                    <AccessControl allowedRoles={['admin']}>
-                        <MDBNavbarItem>
-                        <MDBNavbarLink active={location.pathname === '/admin'} aria-current='page' href='/admin'>
-                            Dashboard
-                        </MDBNavbarLink>
-                        </MDBNavbarItem>
-                    </AccessControl>
                 </MDBNavbarNav>
                 </MDBCollapse>
 
@@ -99,6 +93,9 @@ function NavBar(props) {
                 <MDBBtn color='primary' onClick={logout} href='/login'>Log Out</MDBBtn>
             </MDBContainer>
         </MDBNavbar>
+        <AccessControl allowedRoles={['admin']}>
+            <AdminSidebarToggle />
+        </AccessControl>
     </div>
   );
 }
