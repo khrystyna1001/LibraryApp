@@ -4,15 +4,13 @@ import { updateItem } from '../api';
 import { AuthContext } from '../utils/authContext';
 import '../App.css'
 
-import {
-    MDBBtn,
-    MDBInput,
-    MDBInputGroup,
-    MDBDropdown,
-    MDBDropdownToggle, 
-    MDBDropdownMenu, 
-    MDBDropdownItem
-} from 'mdb-react-ui-kit'
+import { 
+    Button,
+    Form,
+    Dropdown,
+    Message,
+    Grid
+} from 'semantic-ui-react'
 
 class UserPage extends Component {
 
@@ -118,79 +116,82 @@ class UserPage extends Component {
         const isAdmin = user.role === "admin"; 
         const roles = ['Visitor', 'Librarian', 'Admin'];
 
+        if (!user) {
+            return <p>Loading user data...</p>;
+        }
+        
         return (
             <React.Fragment>
                 <NavBar />
+                <Grid centered columns={1} style={{ padding: '50px' }}>
+                <Grid.Column style={{ maxWidth: 500 }}>
+                <Form onSubmit={this.handleUpdateButton} loading={isUpdating}> 
+                    <h1>User Profile Management</h1>
 
-                <form className='form-container'> 
-                    <h1 className='header-text'>User Profile</h1>
 
                     {statusMessage && (
-                        <div className={`p-3 rounded-lg font-medium text-sm 
-                        ${statusMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {statusMessage.text}
-                        </div>
+                        <Message 
+                            size='small'
+                            {...(statusMessage.type === 'error' ? { negative: true } : { positive: true })}
+                            header={statusMessage.type === 'error' ? 'Error' : 'Success'}
+                            content={statusMessage.text}
+                        />
                     )}
-
-                    <MDBInput 
-                        className='my-4' 
+                    
+                    <Form.Input 
                         label='ID' 
-                        value={localId || 'N/A'} 
-                        disabled={!isAdmin}
-                        type='number'
+                        value={user.id || 'N/A'} 
+                        disabled={true}
+                        type='text'
                     />
 
-                    <MDBInput 
-                        className='my-4' 
+                    <Form.Input
                         label='Username' 
                         type='text'
                         onChange={this.handleUserOnChange} 
-                        value={localUsername} 
-                        disabled={!isAuthenticated} 
+                        value={localUsername || ''} 
+                        disabled={!isAdmin} 
                     />
                     
-
-                    <MDBInputGroup className='mb-3'>
-                        <MDBInput className='form-control' type='text'
-                            label='Role (Group)'
+                    
+                    <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end' }}>
+                        <Form.Input
+                            style={{ flex: 1 }}
+                            label='Role (Current Group)'
                             value={userRoleDisplay} 
-                            disabled
+                            disabled={true} 
                         />
-                        <MDBDropdown>
-                            <MDBDropdownToggle 
-                                disabled={!isAuthenticated || !isAdmin}
-                                type='button'
-                                className='h-100'
-                            > {isAdmin ? 'Change Role' : 'Locked'}
-                            </MDBDropdownToggle>
-                                
-                            <MDBDropdownMenu>
-                                {roles.map(role => (
-                                    <MDBDropdownItem 
-                                        link
-                                        key={role}
-                                        disabled={!isAdmin} 
-                                        onClick={() => this.handleRoleOnChange(role)}
-                                    >
-                                        {role}
-                                    </MDBDropdownItem>
-                                ))}
-                            </MDBDropdownMenu>
-                        </MDBDropdown>
-                    </MDBInputGroup>
+                        
+                        <Form.Field style={{ flexShrink: 0, paddingBottom: '14px' }}>
+                            <label>Change Role</label>
+                            <Dropdown
+                                placeholder={isAdmin ? 'Select Role' : 'Role Locked'}
+                                disabled={!isAdmin}
+                                button
+                            >
+                                <Dropdown.Menu>
+                                    {roles.map(role => (
+                                        <Dropdown.Item
+                                            key={role}
+                                            onClick={() => this.handleRoleOnChange(role)}
+                                            active={localRole.toLowerCase() === role.toLowerCase()}
+                                        >
+                                            {role}
+                                        </Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Form.Field>
+                    </div>
 
-                    <MDBBtn type='submit' onClick={this.handleUpdateButton} block
-                    disabled={!isAuthenticated || isUpdating}
-                    >
-                        {isUpdating ? (
-                            'Updating...'
-                        ) : (
-                            <>
-                                Update Profile
-                            </>
-                        )}
-                    </MDBBtn>
-                </form>
+                    <Button type='submit' primary fluid disabled={!isAdmin || isUpdating} style={{ marginTop: '20px' }}>
+                        {isUpdating ? 'Updating...' : 'Update Profile'}
+                    </Button>
+                </Form>
+                </Grid.Column>
+                </Grid>
+
+                
             </React.Fragment>
         )
     }

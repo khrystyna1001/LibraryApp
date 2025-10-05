@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 
+
 import { 
-    MDBCard,
-    MDBCardBody,
-    MDBCardTitle,
-    MDBBtn,
-    MDBInput,
-    MDBInputGroup,
-    MDBDropdown,
-    MDBDropdownToggle,
-    MDBDropdownMenu,
-    MDBDropdownItem
-} from 'mdb-react-ui-kit'
+    Card,
+    CardContent,
+    Button,
+    CardDescription,
+    FormInput,
+    Dropdown,
+    DropdownMenu,
+    Input,
+    DropdownItem,
+} from 'semantic-ui-react'
 
 import withRouter from '../utils/withRouter';
 import { getItem, updateItem } from '../api';
@@ -179,13 +179,13 @@ class User extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                    <MDBCardBody>
-                        <MDBCardTitle className="flex items-center justify-center text-indigo-600">
-                            Loading User info...
-                        </MDBCardTitle>
-                    </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription>
+                            Loading user info...
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
@@ -194,11 +194,12 @@ class User extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                    <MDBCardBody>
-                        <MDBCardTitle className="text-red-600">Error: {error.message}</MDBCardTitle>
-                    </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription>Error: {error.message}</CardDescription>
+                        <Button onClick={this.handleAuthorListButton}>Go back to user list</Button>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
@@ -206,26 +207,23 @@ class User extends Component {
         return (
             <React.Fragment>
                 <NavBar />
-                <form className='form-container'> 
-                    <h1 className='header-text'>User Profile Management</h1>
+                <form> 
+                    <h1>User Profile Management</h1>
 
                     {statusMessage && (
-                        <div className={`p-3 rounded-lg font-medium text-sm text-center 
-                        ${statusMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        <div>
                             {statusMessage.text}
                         </div>
                     )}
                     
-                    <MDBInput 
-                        className='my-4'
+                    <FormInput 
                         label='ID' 
                         value={viewedUser.id || 'N/A'} 
                         disabled={true}
                         type='text'
                     />
 
-                    <MDBInput 
-                        className='my-4'
+                    <FormInput
                         label='Username' 
                         type='text'
                         onChange={this.handleUserOnChange} 
@@ -234,36 +232,32 @@ class User extends Component {
                     />
                     
 
-                    <MDBInputGroup className='mb-3'>
-                        <MDBInput className='form-control' type='text'
+                    <Input>
+                        <FormInput type='text'
                             label='Role (Group)'
                             value={userRoleDisplay} 
                             disabled={true} 
                         />
-                        <MDBDropdown>
-                            <MDBDropdownToggle 
+                        <Dropdown
                                 disabled={!isAdmin}
                                 type='button'
-                                className='h-100'
                             > {isAdmin ? 'Change Role' : 'Locked'}
-                            </MDBDropdownToggle>
                                 
-                            <MDBDropdownMenu>
+                            <DropdownMenu>
                                 {roles.map(role => (
-                                    <MDBDropdownItem 
+                                    <DropdownItem
                                         link
                                         key={role}
                                         onClick={() => this.handleRoleOnChange(role)}
                                     >
                                         {role}
-                                    </MDBDropdownItem>
+                                    </DropdownItem>
                                 ))}
-                            </MDBDropdownMenu>
-                        </MDBDropdown>
-                    </MDBInputGroup>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </Input>
 
-                    <MDBBtn type='submit' onClick={this.handleUpdateButton} block disabled={!isAdmin || isUpdating}
-                    className={isAdmin ? 'bg-indigo-600' : 'bg-gray-400'}
+                    <Button type='submit' onClick={this.handleUpdateButton} block disabled={!isAdmin || isUpdating}
                     >
                         {isUpdating ? (
                             'Updating...'
@@ -272,20 +266,20 @@ class User extends Component {
                                 Update Profile
                             </>
                         )}
-                    </MDBBtn>
-                    <MDBBtn type='submit' block>
+                    </Button>
+                    <Button type='submit'>
                         Go to Books
-                    </MDBBtn>
+                    </Button>
 
-                    <MDBBtn type='submit' block>
+                    <Button type='submit'>
                         Go to Authors
-                    </MDBBtn>
+                    </Button>
 
                     {/* Admin Delete Action */}
                     {isAdmin && (
-                        <MDBBtn type='submit' className='my-4' block> 
+                        <Button type='submit'> 
                             Delete User
-                        </MDBBtn>
+                        </Button>
                     )}
                 </form>
 

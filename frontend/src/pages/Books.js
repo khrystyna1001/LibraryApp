@@ -1,23 +1,20 @@
 import '../App.css'
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-import Pagination from '../components/Pagination';
+import Paginate from '../components/Pagination';
 import Footer from '../components/Footer';
 import { getItems } from '../api';
-import { 
-    MDBListGroup,
-    MDBCard,
-    MDBCardBody,
-    MDBCardTitle,
-    MDBBtn,
-    MDBBtnGroup,
-    MDBIcon,
-    MDBListGroupItem, 
-    MDBCardText,
-    MDBRow,
-    MDBCol
-} 
-from 'mdb-react-ui-kit';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    Button,
+    CardHeader,
+    Grid,
+    GridColumn,
+    List,
+    ListItem
+} from 'semantic-ui-react';
 import { AuthContext } from '../utils/authContext';
 
 import withRouter from '../utils/withRouter';
@@ -94,11 +91,13 @@ class Books extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                      <MDBCardBody>
-                        <MDBCardTitle>Loading books...</MDBCardTitle>
-                      </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription>
+                            Loading books...
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
@@ -107,60 +106,57 @@ class Books extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                      <MDBCardBody>
-                        <MDBCardTitle>Error: {error.message}</MDBCardTitle>
-                      </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription>Error: {error.message}</CardDescription>
+                        <Button onClick={this.handleAuthorListButton}>Go back to book list</Button>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
         return (
-            <div className="main-container">
+            <div>
                 <NavBar />
-                <div className="list-container">
-                    <h1 className="header-text">Book List</h1>
+                <div>
+                    <h1>Book List</h1>
                     { books.length > 0 ? 
-                    (<MDBRow className='row-cols-1 row-cols-md-2 row-cols-lg-4 g-4'>
+                    (<Grid columns={4}>
                     {currentBooks.map(book => (
-                        <MDBCol key={book.id} className='mb-4'>
-                            <MDBCard className='h-100'>
-                                <MDBCardBody>
-                                    <MDBCardTitle>{book.title}</MDBCardTitle>
-                                    <MDBCardText>{book.is_available ? 
-                                        <p className='text-success'>AVAILABLE</p> : <p className='text-danger'>NOT AVAILABLE</p>}</MDBCardText>
+                        <GridColumn key={book.id}>
+                            <Card>
+                                <CardContent>
+                                    <CardHeader>{book.title}</CardHeader>
+                                    <CardDescription>{book.is_available ? 
+                                        <p>AVAILABLE</p> : <p>NOT AVAILABLE</p>}</CardDescription>
                                             {Array.isArray(book.author) && book.author.length > 0 ? (
-                                                <MDBListGroup light>
+                                                <List>
                                                     {book.author.map((authorObj, index) => (
-                                                        <MDBListGroupItem key={authorObj.id}>
+                                                        <ListItem key={authorObj.id}>
                                                             {authorObj.full_name || `${authorObj.first_name} ${authorObj.last_name}`}
                                                             {index < book.author.length - 1 ? ', ' : ''}
-                                                        </MDBListGroupItem>
+                                                        </ListItem>
                                                     ))}
-                                                </MDBListGroup>
+                                                </List>
                                             ) : (
                                                 <span></span>
                                             )}
-                                        </MDBCardBody>
-                                    <MDBBtnGroup shadow='0'>
-                                        <MDBBtn className='bg-info' onClick={() => this.handleInfoButton(book.id)}>View Info</MDBBtn>
+                                        </CardContent>
+                                        <Button onClick={() => this.handleInfoButton(book.id)}>View Info</Button>
                                         {isAdmin && (<>
-                                        <MDBBtn className='bg-info' onClick={() => this.handleEditButton(book.id)}>
-                                            <MDBIcon fas icon="edit" />
-                                        </MDBBtn>
-                                        <MDBBtn className='bg-danger' onClick={() => this.handleDeleteButton(book.id)}>
-                                            <MDBIcon fas icon="trash" />
-                                        </MDBBtn></>
+                                        <Button onClick={() => this.handleEditButton(book.id)}>
+                                        </Button>
+                                        <Button onClick={() => this.handleDeleteButton(book.id)}>
+                                        </Button></>
                                         )}
-                                    </MDBBtnGroup>
-                                </MDBCard>
-                            </MDBCol>
+                                </Card>
+                            </GridColumn>
                             ))}
-                            </MDBRow>
+                            </Grid>
                         ) : (
                             <p>No books found.</p>
                         )}
-                    <Pagination
+                    <Paginate
                     itemsPerPage={itemsPerPage}
                     totalItems={books.length}
                     paginate={this.paginate}

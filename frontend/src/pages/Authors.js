@@ -1,19 +1,17 @@
 import '../App.css'
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-import Pagination from '../components/Pagination';
+import Paginate from '../components/Pagination';
 import Footer from '../components/Footer';
-import { 
-    MDBCard,
-    MDBCardBody,
-    MDBCardTitle,
-    MDBBtn,
-    MDBBtnGroup,
-    MDBIcon,
-    MDBRow,
-    MDBCol,
-} 
-from 'mdb-react-ui-kit';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    Button,
+    CardHeader,
+    Grid,
+    GridColumn
+} from 'semantic-ui-react';
 import { getItems } from '../api';
 import { AuthContext } from '../utils/authContext';
 
@@ -90,11 +88,13 @@ class Authors extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                      <MDBCardBody>
-                        <MDBCardTitle>Loading authors...</MDBCardTitle>
-                      </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription>
+                            Loading authors...
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
@@ -103,51 +103,49 @@ class Authors extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                      <MDBCardBody>
-                        <MDBCardTitle>Error: {error.message}</MDBCardTitle>
-                      </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription>Error: {error.message}</CardDescription>
+                        <Button onClick={this.handleAuthorListButton}>Go back to author list</Button>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
          return (
             <React.Fragment>
-                <div className="main-container">
+                <div>
                 <NavBar />
-                    <div className="list-container">
-                        <h1 className="header-text">Author  List</h1>
+                    <div>
+                        <h1>Author  List</h1>
                         { authors.length > 0 ? (
-                            <MDBRow className='row-cols-1 row-cols-md-2 row-cols-lg-4 g-4'>
+                            <Grid columns={4}>
                                 {currentAuthors.map(author => (
-                                    <MDBCol key={author.id} className='mb-4'>
-                                        <MDBCard className='h-100'>
-                                            <MDBCardBody>
-                                                    <MDBCardTitle>{author.full_name}</MDBCardTitle>
-                                            </MDBCardBody>
+                                    <GridColumn key={author.id}>
+                                        <Card>
+                                            <CardContent>
+                                                    <CardHeader>{author.full_name}</CardHeader>
+                                            </CardContent>
                                             {isAdmin && (
                                                 <>
-                                                <MDBBtnGroup shadow='0'>
-                                                    <MDBBtn className='bg-info' onClick={() => this.handleInfoButton(author.id)}>View Info</MDBBtn>
-                                                    <MDBBtn className='bg-info' onClick={() => this.handleEditButton(author.id)}>
-                                                        <MDBIcon fas icon="edit" />
-                                                    </MDBBtn>
-                                                    <MDBBtn className='bg-danger' onClick={() => this.handleDeleteButton(author.id)}>
-                                                        <MDBIcon fas icon="trash" />
-                                                    </MDBBtn>
-                                                </MDBBtnGroup>
+                                                    <Button onClick={() => this.handleInfoButton(author.id)}>View Info
+                                                    </Button>
+                                                    <Button onClick={() => this.handleEditButton(author.id)}>
+                                                    </Button>
+                                                    <Button onClick={() => this.handleDeleteButton(author.id)}>
+                                                    </Button>
                                                 </>
                                             )}
-                                        </MDBCard>
+                                        </Card>
                                         
-                                    </MDBCol>
+                                    </GridColumn>
                                 ))}
-                            </MDBRow>
+                            </Grid>
                             ) : (
                                 <p>No authors found.</p>
                             )
                         }
-                        <Pagination
+                        <Paginate
                             itemsPerPage={itemsPerPage}
                             totalItems={authors.length}
                             paginate={this.paginate}

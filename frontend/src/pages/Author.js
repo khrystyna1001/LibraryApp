@@ -3,13 +3,14 @@ import NavBar from '../components/Navigation';
 import { AuthContext } from '../utils/authContext';
 
 import { 
-    MDBListGroup,
-    MDBCard,
-    MDBCardBody,
-    MDBCardTitle,
-    MDBBtn,
-    MDBListGroupItem 
-} from 'mdb-react-ui-kit'
+    List,
+    ListItem,
+    Card,
+    CardContent,
+    CardHeader,
+    Button,
+    CardDescription,
+} from 'semantic-ui-react'
 
 import withRouter from '../utils/withRouter';
 import { getItem } from '../api';
@@ -91,13 +92,13 @@ class Author extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                      <MDBCardBody>
-                        <MDBCardTitle className="flex items-center justify-center text-indigo-600">
+                    <Card>
+                      <CardContent>
+                        <CardDescription>
                             Loading author info...
-                        </MDBCardTitle>
-                      </MDBCardBody>
-                    </MDBCard>
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
@@ -106,12 +107,12 @@ class Author extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                      <MDBCardBody>
-                        <MDBCardTitle className="text-red-600">Error: {error.message}</MDBCardTitle>
-                        <MDBBtn className='bg-indigo-600' onClick={this.handleAuthorListButton}>Go back to author list</MDBBtn>
-                      </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription>Error: {error.message}</CardDescription>
+                        <Button onClick={this.handleAuthorListButton}>Go back to author list</Button>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
@@ -119,48 +120,48 @@ class Author extends Component {
         return (
             <React.Fragment>
                 <NavBar />
-                <MDBCard key={author.id}>
-                    <div className='m-4'>
-                        <MDBCardTitle className="flex items-center">
+                <Card key={author.id}>
+                    <div>
+                        <CardHeader>
                             {author.full_name}
-                        </MDBCardTitle>
+                        </CardHeader>
                         
-                        <MDBCardBody className="border rounded-lg p-4 bg-gray-50">
-                            <h3 className="text-lg font-semibold mb-2 flex items-center">
+                        <CardContent>
+                            <h3>
                                 Books Written:
                             </h3>
                             {author.books_written && author.books_written.length > 0 ? (
-                                <MDBListGroup>
+                                <List>
                                     {author.books_written.map(book => (
-                                        <MDBListGroupItem key={book.id} onClick={() => this.handleBookButton(book.id)}>
+                                        <ListItem key={book.id} onClick={() => this.handleBookButton(book.id)}>
                                             {book.title} (Published at: {book.published_date})
-                                        </MDBListGroupItem>
+                                        </ListItem>
                                     ))}
-                                </MDBListGroup>
+                                </List>
                             ) : (
-                                <span className="text-gray-500">No books found for this author.</span>
+                                <span>No books found for this author.</span>
                             )}
-                        </MDBCardBody>
+                        </CardContent>
                         
-                        <div className='flex space-x-2 pt-4'>
-                            <MDBBtn className='bg-gray-500 hover:bg-gray-600' onClick={this.handleAuthorListButton}>
+                        <div>
+                            <Button onClick={this.handleAuthorListButton}>
                                 Go back to author list
-                            </MDBBtn>
+                            </Button>
                             
                             {/* ADMIN UI - Context check applied */}
                             {isAdmin && (
                                 <>
-                                    <MDBBtn className='mx-3' onClick={this.handleEditButton}> 
+                                    <Button  onClick={this.handleEditButton}> 
                                         Edit Author
-                                    </MDBBtn>
-                                    <MDBBtn className='bg-red-600 hover:bg-red-700' onClick={this.handleDeleteButton}> 
+                                    </Button>
+                                    <Button onClick={this.handleDeleteButton}> 
                                         Delete Author
-                                    </MDBBtn>
+                                    </Button>
                                 </>
                             )}
                         </div>
                     </div>
-                </MDBCard>
+                </Card>
             </React.Fragment>
         )
     }

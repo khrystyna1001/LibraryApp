@@ -1,29 +1,35 @@
 import React from 'react';
-
-import {
-    MDBFooter,
-    MDBContainer,
-    MDBRow,
-  } from 'mdb-react-ui-kit';
+import { Segment, 
+    Container, 
+    Grid, 
+    List, 
+    Header, 
+    Divider 
+} from 'semantic-ui-react';
   
 
 function Footer() {
     return(
-        <div>
-        <MDBFooter className='bg-secondary bottom'>
-        <MDBContainer className='p-4'>
-            <MDBRow>
-                <h5 className='text-uppercase'>Footer Content</h5>
-
-                <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iste atque ea quis molestias.
-                Fugiat pariatur maxime quis culpa corporis vitae repudiandae aliquam voluptatem veniam,
-                est atque cumque eum delectus sint!
-                </p>
-            </MDBRow>
-        </MDBContainer>
-    </MDBFooter>
-    </div>
+        <div style={{ position: 'fixed', width: '100%', bottom: '0' }}>
+            <Segment inverted vertical style={{ margin: '25em 0em 0em 0em', padding: '5em 0em' }}>
+                <Container textAlign='center'>
+                    <List horizontal inverted divided link size='small'>
+                    <List.Item as='a' href='#'>
+                        Site Map
+                    </List.Item>
+                    <List.Item as='a' href='#'>
+                        Contact Us
+                    </List.Item>
+                    <List.Item as='a' href='#'>
+                        Terms and Conditions
+                    </List.Item>
+                    <List.Item as='a' href='#'>
+                        Privacy Policy
+                    </List.Item>
+                    </List>
+                </Container>
+            </Segment>
+        </div>
     )
 }
 

@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 
 import { 
-    MDBListGroup,
-    MDBCard,
-    MDBCardBody,
-    MDBCardTitle,
-    MDBBtn,
-    MDBListGroupItem 
-} from 'mdb-react-ui-kit'
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    Button,
+    List,
+    ListItem
+} from 'semantic-ui-react';
 
 import withRouter from '../utils/withRouter';
 import { getItem } from '../api';
@@ -82,13 +83,13 @@ class Book extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                      <MDBCardBody>
-                        <MDBCardTitle className="flex items-center justify-center text-indigo-600">
-                            Loading author info...
-                        </MDBCardTitle>
-                      </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription>
+                            Loading book info...
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
@@ -97,65 +98,66 @@ class Book extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <MDBCard>
-                      <MDBCardBody>
-                        <MDBCardTitle className="text-red-600">Error: {error.message}</MDBCardTitle>
-                        <MDBBtn className='bg-indigo-600' onClick={this.handleAuthorListButton}>Go back to author list</MDBBtn>
-                      </MDBCardBody>
-                    </MDBCard>
+                    <Card>
+                      <CardContent>
+                        <CardDescription> Error: {error.message}</CardDescription>
+                        <Button onClick={this.handleAuthorListButton}>Go back to author list</Button>
+                      </CardContent>
+                    </Card>
                 </React.Fragment>
             );
         }
+
         return (
             <React.Fragment>
                     <NavBar />
-                        <MDBCardTitle className='m-4'>{book.title}</MDBCardTitle>
-                        <MDBCard>
-                            <div style={{ display: 'flex', margin: '20px' }}>
-                                <MDBCardBody className='border rounded-lg p-4 bg-gray-50'>
-                                <h3 className="text-lg font-semibold mb-2 flex items-center">
+                        <CardHeader>{book.title}</CardHeader>
+                        <Card>
+                            <div>
+                                <CardContent>
+                                <h3>
                                     Authors:
                                 </h3>
                                     {Array.isArray(book.author) && book.author.length > 0 ? (
-                                        <MDBListGroup light>
+                                        <List>
                                             {book.author.map((authorObj, index) => (
-                                                <MDBListGroupItem className='text-lg font-semibold mb-2 flex items-center' key={book.id}>
+                                                <ListItem key={book.id}>
                                                     {authorObj.full_name || `${authorObj.first_name} ${authorObj.last_name}`}
                                                     {index < book.author.length - 1 ? ', ' : ''}
-                                                </MDBListGroupItem>
+                                                </ListItem>
                                             ))}
-                                        </MDBListGroup>
+                                        </List>
                                         ) : book.author ? (
                                             <p><strong>Author:</strong> {book.author.full_name || `${book.author.first_name} ${book.author.last_name}`}</p>
                                         ) : (
-                                            <span className="text-gray-500">No author information available</span>
+                                            <span>No author information available</span>
                                     )}
                                     {book.is_available ? 
-                                        <h5 className='text-lg font-semibold mb-2 flex items-center text-success'>AVAILABLE</h5> : 
-                                        <h5 className='text-lg font-semibold mb-2 flex items-center text-danger mb-3'>NOT AVAILABLE</h5>
+                                        <h5>AVAILABLE</h5> : 
+                                        <h5>NOT AVAILABLE</h5>
                                     }
                                     {book.description}
                                     <br></br>
                                     <br></br>
                                     Published at: <p>{book.published_date}</p>
-                                </MDBCardBody>
+                                </CardContent>
                             </div>
-                        </MDBCard>
+                        </Card>
                         <br></br>
-                        <div className='flex space-x-2 pt-4'>
-                            <MDBBtn className='mx-3' onClick={this.handleBookListButton}>Go back to book list</MDBBtn>
-                            <MDBBtn className='primary mx-3' onClick={this.handleAuthorListButton}>Go back to author list</MDBBtn>
+                        <div>
+                            <Button onClick={this.handleBookListButton}>Go back to book list</Button>
+                            <Button onClick={this.handleAuthorListButton}>Go back to author list</Button>
                             {/*VISITOR UI*/}
                             {book.is_available && !isAdmin ? 
-                                <MDBBtn className='primary mx-3' onClick={this.handleBorrowButton}> Borrow Book</MDBBtn> :
+                                <Button onClick={this.handleBorrowButton}> Borrow Book</Button> :
                                 <></>
                             }
                             {/*LIBARARIAN / ADMIN UI*/}
                             {book.is_available && isAdmin ? 
                                 <>
-                                    <MDBBtn className='primary mx-2' onClick={this.handleIssueButton}> Issue Book</MDBBtn>
-                                    <MDBBtn className='primary mx-2' onClick={this.handleEditButton}> Edit Book</MDBBtn>
-                                    <MDBBtn className='primary mx-2' onClick={this.handleEditButton}> Delete Book</MDBBtn></> :
+                                    <Button onClick={this.handleIssueButton}> Issue Book</Button>
+                                    <Button onClick={this.handleEditButton}> Edit Book</Button>
+                                    <Button onClick={this.handleEditButton}> Delete Book</Button></> :
                                 <></>
                             }
                         </div>

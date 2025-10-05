@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { MDBBtn, MDBIcon, MDBNavbar, MDBContainer } from 'mdb-react-ui-kit';
+import { Menu, 
+  Button 
+} from 'semantic-ui-react';
 
 export default function AdminSidebarToggle() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,9 +23,8 @@ export default function AdminSidebarToggle() {
         </div>
     </div>
 
-      <MDBNavbar dark bgColor='dark'>
-        <MDBContainer fluid>
-          <MDBBtn
+      <Menu>
+          <Button
             onClick={toggleSidebar} 
             className="navbar-toggler"
             type="button"
@@ -31,10 +32,8 @@ export default function AdminSidebarToggle() {
             aria-expanded={isOpen} 
             aria-label="Toggle navigation"
           >
-            <MDBIcon fas icon='bars' />
-          </MDBBtn>
-        </MDBContainer>
-      </MDBNavbar>
+          </Button>
+      </Menu>
     </>
   );
 }

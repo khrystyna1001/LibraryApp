@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Books from './pages/Books';
 import Authors from './pages/Authors';
 import About from './pages/About';
@@ -23,12 +22,12 @@ function App() {
       <header className="App-header">
         <Routes>
           <Route path='/home/' Component={Home}></Route>
-          <Route path='/my_profile/' Component={UserPage}></Route>
           <Route path='/login/' Component={Login}></Route>
           <Route path='/about/' Component={About}></Route>
           <Route path='/books/' Component={Books}></Route>
           <Route path='/authors/' Component={Authors}></Route>
           <Route path='/books/:bookID/' Component={Book}></Route>
+          <Route path='/my_profile/' Component={UserPage}></Route>
           <Route path='/authors/:authorID/' Component={Author}></Route>
           <Route path='/user/:userID/' Component={User}></Route>
           <Route path='/Unauthorized/' Component={UnauthorizedPage}></Route>

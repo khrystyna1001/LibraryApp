@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
-import {
-  MDBInput,
-  MDBBtn,
-  MDBIcon
-} from 'mdb-react-ui-kit';
+import { Button, Form, Grid, Message, Segment, Icon } from 'semantic-ui-react';
 import withRouter from '../utils/withRouter';
 import { getUserData } from '../api';
 import axios from 'axios';
@@ -106,16 +102,30 @@ function Login(props) {
   }
 
   return (
-    <div className='d-flex align-items-center justify-content-center' style={{ height: '600px' }}>
-      <form className='m-auto w-25' onSubmit={handleLogIn}>
+    <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
+      <Grid.Column style={{ maxWidth: 450 }}>
+        <Form size='large' onSubmit={handleLogIn}>
+          <Segment stacked>
+            <Form.Input
+              fluid
+              icon='lock'
+              iconPosition='left'
+              placeholder='Token'
+              type='password' 
+              id='form2Example2' 
+              label='Token' 
+              value={formValue} 
+              onChange={(e) => onFormChange(e)} 
+              required
+            />
 
-        <MDBInput className='m-4' type='password' id='form2Example2' label='Token' value={formValue} onChange={(e) => onFormChange(e)} required />
-        <MDBBtn type='submit' className='mb-4' block>
-          Log in
-        </MDBBtn>
-
-        <div className='text-center'>
-          <p>Sign in with:</p>
+            <Button color='teal' fluid size='large' type='submit'>
+              Login
+            </Button>
+          </Segment>
+        </Form>
+        <Message>
+          Sign in with <span style={{ marginLeft: '30px' }}> 
           <FacebookLogin 
               appId="713417228147118"
               autoLoad={false}  
@@ -123,14 +133,15 @@ function Login(props) {
               callback={handleFacebookCallback}
               responseType="token"
               render={renderProps => (
-                <MDBBtn floating color="secondary" className='mx-1' onClick={renderProps.onClick}>
-                  <MDBIcon fab icon='facebook-f' />
-                </MDBBtn>
+                <Button color='facebook' onClick={renderProps.onClick}>
+                  <Icon name='facebook f' />
+                </Button>
               )}
           />
-        </div>
-      </form>
-    </div>
+          </span>
+        </Message>
+      </Grid.Column>
+    </Grid>
   );
 }
 
