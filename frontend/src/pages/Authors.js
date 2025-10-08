@@ -116,7 +116,7 @@ class Authors extends Component {
             <React.Fragment>
                 <div>
                 <NavBar />
-                    <div>
+                    <div style={{ margin: '55px' }}>
                         <h1>Author  List</h1>
                         { authors.length > 0 ? (
                             <Grid columns={4}>
@@ -126,16 +126,19 @@ class Authors extends Component {
                                             <CardContent>
                                                     <CardHeader>{author.full_name}</CardHeader>
                                             </CardContent>
-                                            {isAdmin && (
-                                                <>
-                                                    <Button onClick={() => this.handleInfoButton(author.id)}>View Info
-                                                    </Button>
-                                                    <Button onClick={() => this.handleEditButton(author.id)}>
-                                                    </Button>
-                                                    <Button onClick={() => this.handleDeleteButton(author.id)}>
-                                                    </Button>
-                                                </>
+                                            <Button onClick={() => this.handleInfoButton(author.id)}>
+                                                View Info
+                                            </Button>
+                                            <div className='two ui buttons'>
+                                            {isAdmin && (<>
+                                                <Button onClick={() => this.handleEditButton(author.id)}>
+                                                    Edit Author
+                                                </Button>
+                                                <Button onClick={() => this.handleDeleteButton(author.id)}>
+                                                    Delete Author
+                                                </Button></>
                                             )}
+                                            </div>
                                         </Card>
                                         
                                     </GridColumn>

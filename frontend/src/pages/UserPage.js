@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import { updateItem } from '../api';
 import { AuthContext } from '../utils/authContext';
+import Footer from '../components/Footer';
 import '../App.css'
 
 import { 
@@ -111,8 +112,7 @@ class UserPage extends Component {
     render() {
         const { localUsername, localRole, isUpdating, statusMessage, localId } = this.state;
         const { user } = this.context;
-        const userRoleDisplay = localRole.charAt(0).toUpperCase() + localRole.slice(1); 
-        const isAuthenticated = user.isAuthenticated;
+        const userRoleDisplay = localRole.charAt(0).toUpperCase() + localRole.slice(1);
         const isAdmin = user.role === "admin"; 
         const roles = ['Visitor', 'Librarian', 'Admin'];
 
@@ -191,7 +191,7 @@ class UserPage extends Component {
                 </Grid.Column>
                 </Grid>
 
-                
+                <Footer />
             </React.Fragment>
         )
     }

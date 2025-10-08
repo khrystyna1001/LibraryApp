@@ -61,6 +61,7 @@ function NavBar(props) {
                         <Button
                             color='teal'
                             onClick={logout}
+                            href='/login/'
                         >
                         Logout
                         </Button>

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
+import Footer from '../components/Footer';
 
 import { 
     Card,
     CardContent,
     CardDescription,
-    CardHeader,
     Button,
     List,
     ListItem
@@ -111,9 +111,9 @@ class Book extends Component {
         return (
             <React.Fragment>
                     <NavBar />
-                        <CardHeader>{book.title}</CardHeader>
-                        <Card>
-                            <div>
+                    <Card style={{ display: 'flex', margin: 'auto', align_items: 'center', marginTop: '55px', width: '900px' }}>
+
+                        <CardContent header={book.title}></CardContent>
                                 <CardContent>
                                 <h3>
                                     Authors:
@@ -141,18 +141,21 @@ class Book extends Component {
                                     <br></br>
                                     Published at: <p>{book.published_date}</p>
                                 </CardContent>
-                            </div>
-                        </Card>
                         <br></br>
-                        <div>
+                        <div className='ui two buttons'>
                             <Button onClick={this.handleBookListButton}>Go back to book list</Button>
                             <Button onClick={this.handleAuthorListButton}>Go back to author list</Button>
+                        
+                        </div>
                             {/*VISITOR UI*/}
+                        <div className='ui button'>
                             {book.is_available && !isAdmin ? 
                                 <Button onClick={this.handleBorrowButton}> Borrow Book</Button> :
                                 <></>
                             }
+                        </div>
                             {/*LIBARARIAN / ADMIN UI*/}
+                        <div className='ui two buttons'>
                             {book.is_available && isAdmin ? 
                                 <>
                                     <Button onClick={this.handleIssueButton}> Issue Book</Button>
@@ -161,6 +164,8 @@ class Book extends Component {
                                 <></>
                             }
                         </div>
+                    </Card>
+                    <Footer />
             </React.Fragment>
         )
     }

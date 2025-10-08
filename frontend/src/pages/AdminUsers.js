@@ -22,6 +22,7 @@ class AdminUsers extends Component {
         super(props);
         this.state = {
           users: [],
+          tokens: [],
           currentPage: 1,
           itemsPerPage: 8,
           error: null,
@@ -31,6 +32,15 @@ class AdminUsers extends Component {
 
     handleUserButton = (userID) => {
         this.props.router.navigate(`/user/${userID}`);
+    }
+
+    handleTokenFind = (tokens, user) => {
+        const t = tokens.find(token => token.user === user.id)?.key
+        return t;
+    }
+
+    paginate = (pageNumber) => {
+        this.setState({ currentPage: pageNumber });
     }
 
     async componentDidMount() {
@@ -44,11 +54,13 @@ class AdminUsers extends Component {
         try {
             const token = localStorage.getItem('token') || 'mock-token'; 
             
-            const fetchedUsers = await getItems('user', token)
+            const fetchedUsers = await getItems('users', token);
+            const fetchedTokens = await getItems('tokens', token);
 
             if (Array.isArray(fetchedUsers)) {
                 this.setState({
                 users: fetchedUsers,
+                tokens: fetchedTokens,
                 loading: false,
             });
             } else {
@@ -69,7 +81,7 @@ class AdminUsers extends Component {
     }
 
     render() {
-        const { users, loading } = this.state;
+        const { users, loading, error, currentPage, itemsPerPage, tokens } = this.state;
         return (
             <div>
                 <style jsx="true">{`
@@ -79,7 +91,7 @@ class AdminUsers extends Component {
                 
                 <NavBar /> 
                 
-                <div>
+                <div style={{ margin: '55px' }}>
                 {loading ? (
                     <Card>
                     <CardContent>
@@ -101,6 +113,7 @@ class AdminUsers extends Component {
                                         <TableHeaderCell>ID</TableHeaderCell>
                                         <TableHeaderCell>Username</TableHeaderCell>
                                         <TableHeaderCell>Group</TableHeaderCell>
+                                        <TableHeaderCell>Token</TableHeaderCell>
                                         <TableHeaderCell>Actions</TableHeaderCell>
                                     </TableRow>
                                 </TableHeader>
@@ -111,9 +124,11 @@ class AdminUsers extends Component {
                                             <TableCell>{user.username}</TableCell>
                                             <TableCell>{user.groups[0] ? user.groups[0] : 'Visitor'}</TableCell>
                                             <TableCell>
-                                                <Button onClick={() => this.handleUserButton(user.id)}>
+                                                {this.handleTokenFind(tokens, user)}</TableCell>
+                                            <TableCell>
+                                                <Button icon='edit'>
                                                 </Button>
-                                                <Button>
+                                                <Button icon='trash'>
                                                 </Button>
                                             </TableCell>
                                         </TableRow>

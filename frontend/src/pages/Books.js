@@ -80,7 +80,7 @@ class Books extends Component {
 
     render() {
         const { books, error, loading, currentPage, itemsPerPage } = this.state;
-         const { user } = this.context; 
+        const { user } = this.context; 
         const isAdmin = user.role === 'admin'
 
         const indexOfLastBook = currentPage * itemsPerPage;
@@ -118,7 +118,7 @@ class Books extends Component {
         return (
             <div>
                 <NavBar />
-                <div>
+                <div style={{ margin: '55px' }}>
                     <h1>Book List</h1>
                     { books.length > 0 ? 
                     (<Grid columns={4}>
@@ -143,12 +143,16 @@ class Books extends Component {
                                             )}
                                         </CardContent>
                                         <Button onClick={() => this.handleInfoButton(book.id)}>View Info</Button>
+                                        <div className='two ui buttons'>
                                         {isAdmin && (<>
-                                        <Button onClick={() => this.handleEditButton(book.id)}>
-                                        </Button>
-                                        <Button onClick={() => this.handleDeleteButton(book.id)}>
-                                        </Button></>
+                                            <Button onClick={() => this.handleEditButton(book.id)}>
+                                                Edit Book
+                                            </Button>
+                                            <Button onClick={() => this.handleDeleteButton(book.id)}>
+                                                Delete Book
+                                            </Button></>
                                         )}
+                                        </div>
                                 </Card>
                             </GridColumn>
                             ))}

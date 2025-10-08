@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
+import Footer from '../components/Footer';
 import { AuthContext } from '../utils/authContext';
 
 import { 
@@ -7,7 +8,6 @@ import {
     ListItem,
     Card,
     CardContent,
-    CardHeader,
     Button,
     CardDescription,
 } from 'semantic-ui-react'
@@ -34,6 +34,10 @@ class Author extends Component {
 
     handleAuthorListButton = () => {
         this.props.router.navigate("/authors/");
+    }
+
+    handleBookListButton = () => {
+        this.props.router.navigate("/books/");
     }
 
     handleBookButton = (bookID) => {
@@ -120,35 +124,36 @@ class Author extends Component {
         return (
             <React.Fragment>
                 <NavBar />
-                <Card key={author.id}>
-                    <div>
-                        <CardHeader>
-                            {author.full_name}
-                        </CardHeader>
+                <Card style={{ display: 'flex', margin: 'auto', align_items: 'center', marginTop: '55px', width: '900px' }}  key={author.id}>
+                    <CardContent header={author.full_name}></CardContent>
                         
-                        <CardContent>
-                            <h3>
-                                Books Written:
-                            </h3>
-                            {author.books_written && author.books_written.length > 0 ? (
-                                <List>
-                                    {author.books_written.map(book => (
-                                        <ListItem key={book.id} onClick={() => this.handleBookButton(book.id)}>
-                                            {book.title} (Published at: {book.published_date})
-                                        </ListItem>
-                                    ))}
-                                </List>
-                            ) : (
-                                <span>No books found for this author.</span>
-                            )}
-                        </CardContent>
-                        
-                        <div>
+                    <CardContent>
+                        <h3>
+                            Books Written:
+                        </h3>
+                        {author.books_written && author.books_written.length > 0 ? (
+                            <List>
+                                {author.books_written.map(book => (
+                                    <ListItem key={book.id} onClick={() => this.handleBookButton(book.id)}>
+                                        {book.title} (Published at: {book.published_date})
+                                    </ListItem>
+                                ))}
+                            </List>
+                        ) : (
+                            <span>No books found for this author.</span>
+                        )}
+                    </CardContent>
+                        <div className='ui two buttons'>
                             <Button onClick={this.handleAuthorListButton}>
                                 Go back to author list
                             </Button>
-                            
+                            <Button onClick={this.handleBookListButton}>
+                                Go back to book list
+                            </Button>
+                        </div>
+                                    
                             {/* ADMIN UI - Context check applied */}
+                        <div className='ui two buttons'>
                             {isAdmin && (
                                 <>
                                     <Button  onClick={this.handleEditButton}> 
@@ -160,8 +165,8 @@ class Author extends Component {
                                 </>
                             )}
                         </div>
-                    </div>
                 </Card>
+                <Footer />
             </React.Fragment>
         )
     }

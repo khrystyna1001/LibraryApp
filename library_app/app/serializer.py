@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
@@ -45,6 +46,11 @@ class UserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+class TokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Token
+        fields = "__all__"
 
 class PermissionsSerializer(serializers.ModelSerializer):
     class Meta:

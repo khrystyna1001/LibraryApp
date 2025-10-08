@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
+import Footer from '../components/Footer';
 import { 
     Card,
     CardContent
@@ -15,6 +16,7 @@ class About extends Component {
                                 keep track of authors, and administer user accounts with ease.
                                 Use the navigation above to begin exploring your collection [ABOUT].</CardContent>
                 </Card>
+                <Footer />
             </React.Fragment>
         )
     }

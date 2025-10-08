@@ -13,7 +13,8 @@ import {
     Button, 
     Card, 
     CardContent, 
-    CardDescription
+    CardDescription,
+    Icon
   } from 'semantic-ui-react'
  import { AuthContext } from "../utils/authContext";
 
@@ -78,7 +79,7 @@ class AdminBooks extends Component {
                 
                 <NavBar /> 
                 
-                <div>
+                <div style={{ margin: '55px' }}>
                 {loading ? (
                     <Card>
                       <CardContent>
@@ -127,9 +128,9 @@ class AdminBooks extends Component {
                                             <TableCell>{book.published_date}</TableCell> 
                                             <TableCell>{book.is_available ? "Available" : "Not Available"}</TableCell>
                                             <TableCell>
-                                                <Button>
+                                                <Button icon="edit">
                                                 </Button>
-                                                <Button >
+                                                <Button icon="trash">
                                                 </Button>
                                             </TableCell>
                                         </TableRow>

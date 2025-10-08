@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-
+import Footer from '../components/Footer';
 
 import { 
     Card,
@@ -164,8 +164,7 @@ class User extends Component {
 
         const { viewedUser, error, loading, isUpdating, statusMessage } = this.state;
         const { user: currentUser } = this.context; 
-        const isAdmin = currentUser.role === 'admin'; 
-        // const isAuthenticated = currentUser.isAuthenticated;
+        const isAdmin = currentUser.role === 'admin';
         const roles = ['Visitor', 'Librarian', 'Admin'];
 
         
@@ -282,8 +281,9 @@ class User extends Component {
                         </Button>
                     )}
                 </form>
-
                 
+                <Footer />
+
             </React.Fragment>
         )
     }

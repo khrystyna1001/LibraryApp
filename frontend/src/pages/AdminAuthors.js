@@ -86,7 +86,7 @@ class AdminAuthors extends Component {
                 
                 <NavBar /> 
                 
-                <div>
+                <div style={{ margin: '55px' }}>
                 {loading ? (
                      <Card>
                      <CardContent>
@@ -130,9 +130,9 @@ class AdminAuthors extends Component {
                                             )}
                                             </TableCell>
                                             <TableCell>
-                                                <Button  onClick={() => this.handleAuthorButton(author.id)}>
+                                                <Button icon='edit'>
                                                 </Button>
-                                                <Button>
+                                                <Button icon='trash'>
                                                 </Button>
                                             </TableCell>
                                         </TableRow>
