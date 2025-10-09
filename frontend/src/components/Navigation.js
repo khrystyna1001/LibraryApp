@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import AccessControl from './AccessControl';
 import withRouter from '../utils/withRouter';
 import { useAuth } from '../utils/authContext';
-import AdminSidebarToggle from './AdminNav';
+import AdminNavbar from './Dashboard';
 import { Menu, 
     Container, 
     Dropdown, 
@@ -17,11 +17,6 @@ function NavBar(props) {
     const [dropdownTitle, setDropdownTitle] = useState('');
     const location = useLocation();
     const { user, logout } = useAuth();
-
-    const options = [
-        { key: 'books', text: 'Books', value: 'books' },
-        { key: 'authors', text: 'Authors', value: 'authors' },
-      ]
 
     useEffect(() => {
 
@@ -68,9 +63,10 @@ function NavBar(props) {
                     </Menu.Item>
                 </MenuMenu>
             </Menu>
+            
 
         <AccessControl allowedRoles={['admin']}>
-            <AdminSidebarToggle />
+            <AdminNavbar />
         </AccessControl>
     </div>
   );

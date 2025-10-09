@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { getItems } from "../api";
+import { getItems, updateItem } from "../api";
 import NavBar from '../components/Navigation'
 import withRouter from "../utils/withRouter";
+import UserEditModal from "../components/EditModal";
 import { Table,
     TableRow,
     TableHeaderCell,
@@ -27,6 +28,9 @@ class AdminUsers extends Component {
           itemsPerPage: 8,
           error: null,
           loading: true,
+          isModalOpen: false,
+          currentUserToEdit: null,
+          isSaving: false,
         };
     }
 
@@ -38,6 +42,46 @@ class AdminUsers extends Component {
         const t = tokens.find(token => token.user === user.id)?.key
         return t;
     }
+
+    handleEditUser = (user) => {
+        this.setState({
+            isModalOpen: true,
+            currentUserToEdit: user,
+        });
+    };
+
+    handleCloseModal = () => {
+        this.setState({
+            isModalOpen: false,
+            currentUserToEdit: null,
+        });
+    };
+
+    handleSaveUserEdit = async (updatedUser) => {
+        this.setState({ isSaving: true });
+        
+        const token = localStorage.getItem('token') || 'mock-token'; 
+        const { id, username, groups } = updatedUser;
+        const user_role = groups[0];
+        const user_password = null;
+        
+        try {
+            await updateItem('users', id, token, username, user_role, user_password);
+
+            this.setState(prevState => ({
+                users: prevState.users.map(user => 
+                    user.id === updatedUser.id ? updatedUser : user
+                ),
+                isSaving: false,
+                isModalOpen: false,
+                currentUserToEdit: null,
+            }));
+
+        } catch (error) {
+            console.error("Failed to save user via API:", error);
+            this.setState({ isSaving: false }); 
+        }
+    };
 
     paginate = (pageNumber) => {
         this.setState({ currentPage: pageNumber });
@@ -81,7 +125,16 @@ class AdminUsers extends Component {
     }
 
     render() {
-        const { users, loading, error, currentPage, itemsPerPage, tokens } = this.state;
+        const { users, 
+            loading, 
+            error, 
+            currentPage, 
+            itemsPerPage, 
+            tokens,
+            isModalOpen, 
+            currentUserToEdit, 
+            isSaving  
+        } = this.state;
         return (
             <div>
                 <style jsx="true">{`
@@ -126,17 +179,26 @@ class AdminUsers extends Component {
                                             <TableCell>
                                                 {this.handleTokenFind(tokens, user)}</TableCell>
                                             <TableCell>
-                                                <Button icon='edit'>
-                                                </Button>
-                                                <Button icon='trash'>
-                                                </Button>
+                                                <Button icon='edit' onClick={() => this.handleEditUser(user)} />
+                                                <Button icon='trash' />
                                             </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
                         </div>
+                        {/* PAGINATION */}
                     </div>
+                )}
+                
+                {currentUserToEdit && (
+                    <UserEditModal 
+                        currentUser={currentUserToEdit}
+                        isOpen={isModalOpen}
+                        onClose={this.handleCloseModal}
+                        onSave={this.handleSaveUserEdit}
+                        isSaving={isSaving}
+                    />
                 )}
                 </div>
             </div>
