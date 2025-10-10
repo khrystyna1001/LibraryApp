@@ -13,7 +13,8 @@ import {
     Grid,
     GridColumn,
     List,
-    ListItem
+    ListItem,
+    ButtonGroup
 } from 'semantic-ui-react';
 import { AuthContext } from '../utils/authContext';
 
@@ -34,7 +35,15 @@ class Books extends Component {
     }
 
     handleInfoButton = (bookID) => {
-        this.props.router.navigate(`${bookID}`);
+        this.props.router.navigate(`/books/${bookID}`);
+    }
+
+    handleEditButton = (bookID) => {
+        console.log(`Edit button clicked for book ID: ${bookID}`);
+    }
+
+    handleDeleteButton = (bookID) => {
+        console.log(`Delete button clicked for book ID: ${bookID}`);
     }
 
     paginate = (pageNumber) => {
@@ -118,10 +127,11 @@ class Books extends Component {
         return (
             <div>
                 <NavBar />
-                <div style={{ margin: '55px' }}>
+                <div style={{ margin: '55px', height: '100vh', overflowY: 'auto' }}>
                     <h1>Book List</h1>
                     { books.length > 0 ? 
-                    (<Grid columns={4}>
+                    (<div style={{ marginBottom: '30px' }}> 
+                    <Grid columns={4}>
                     {currentBooks.map(book => (
                         <GridColumn key={book.id}>
                             <Card>
@@ -141,22 +151,27 @@ class Books extends Component {
                                             ) : (
                                                 <span></span>
                                             )}
-                                        </CardContent>
-                                        <Button onClick={() => this.handleInfoButton(book.id)}>View Info</Button>
-                                        <div className='two ui buttons'>
-                                        {isAdmin && (<>
+                                </CardContent>
+                                <CardContent extra>
+                                    <Button fluid onClick={() => this.handleInfoButton(book.id)}>View Info</Button>
+                                </CardContent>
+                                {isAdmin && (
+                                    <CardContent extra>
+                                        <ButtonGroup widths='2'>
                                             <Button onClick={() => this.handleEditButton(book.id)}>
                                                 Edit Book
                                             </Button>
                                             <Button onClick={() => this.handleDeleteButton(book.id)}>
                                                 Delete Book
-                                            </Button></>
-                                        )}
-                                        </div>
-                                </Card>
-                            </GridColumn>
-                            ))}
-                            </Grid>
+                                            </Button>
+                                        </ButtonGroup>
+                                    </CardContent>
+                                )}
+                            </Card>
+                        </GridColumn>
+                        ))}
+                        </Grid>
+                        </div>
                         ) : (
                             <p>No books found.</p>
                         )}

@@ -98,4 +98,20 @@ async function updateItem(item, ID, token, user_name, user_role, user_password) 
     }
 }
 
-export { getItem, getItems, getUserData, updateItem };
+async function deleteItem(item, ID, token) {
+    try {
+
+        const requestHeaders = {
+            "Content-Type": "application/json",
+            "Authorization": `Token ${token}`
+        }
+
+        const response = await axios.delete(`${API_URL}/${item}/${ID}/`)
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to delete ${item} with ID of ${ID}:`, error);
+        throw error;
+    }
+}
+
+export { getItem, getItems, getUserData, updateItem, deleteItem };

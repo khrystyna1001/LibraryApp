@@ -18,7 +18,7 @@ import {
 } from 'semantic-ui-react';
 
 import { useAuth } from '../utils/authContext';
-import { getItem, updateItem } from '../api';
+import { getItem, updateItem, deleteItem } from '../api';
 
 const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
 

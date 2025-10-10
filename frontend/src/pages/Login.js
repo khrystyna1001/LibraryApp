@@ -33,7 +33,7 @@ function Login(props) {
       return;
     }
   
-    const users = await axios.get('http://localhost:8000/user/');
+    const users = await axios.get('http://localhost:8000/users/');
     const usersArray = Object.values(users.data);
 
     const username = response.name.split(" ")[0];
@@ -48,7 +48,7 @@ function Login(props) {
       if (userExists) {
         console.log("USER EXISTS, attempting to log in...");
       
-          await axios.patch(`http://localhost:8000/user/${userExists.id}/`, {
+          await axios.patch(`http://localhost:8000/users/${userExists.id}/`, {
               "password": password
           });
 
@@ -58,7 +58,7 @@ function Login(props) {
           });
         } else {
       console.log("USER DOESN'T EXIST, creating a new user...");
-        const newUserResponse = await axios.post("http://localhost:8000/user/", {
+        const newUserResponse = await axios.post("http://localhost:8000/users/", {
           "username": username,
           "password": password
         });

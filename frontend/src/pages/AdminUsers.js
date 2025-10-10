@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { getItems, updateItem } from "../api";
 import NavBar from '../components/Navigation'
 import withRouter from "../utils/withRouter";
-import UserEditModal from "../components/EditModal";
+import UserEditModal from "../components/EditUserModal";
 import { Table,
     TableRow,
     TableHeaderCell,
@@ -15,6 +15,7 @@ import { Table,
     CardDescription
  } from "semantic-ui-react";
  import { AuthContext } from "../utils/authContext";
+import DeleteModal from "../components/DeleteUserModal";
 
 class AdminUsers extends Component {
     static contextType = AuthContext;
@@ -28,8 +29,10 @@ class AdminUsers extends Component {
           itemsPerPage: 8,
           error: null,
           loading: true,
-          isModalOpen: false,
+          isEditModalOpen: false,
+          isDeleteModalOpen: false,
           currentUserToEdit: null,
+          currentUserToDelete: null,
           isSaving: false,
         };
     }
@@ -45,14 +48,14 @@ class AdminUsers extends Component {
 
     handleEditUser = (user) => {
         this.setState({
-            isModalOpen: true,
+            isEditModalOpen: true,
             currentUserToEdit: user,
         });
     };
 
     handleCloseModal = () => {
         this.setState({
-            isModalOpen: false,
+            isEditModalOpen: false,
             currentUserToEdit: null,
         });
     };
@@ -73,7 +76,7 @@ class AdminUsers extends Component {
                     user.id === updatedUser.id ? updatedUser : user
                 ),
                 isSaving: false,
-                isModalOpen: false,
+                isEditModalOpen: false,
                 currentUserToEdit: null,
             }));
 
@@ -81,6 +84,20 @@ class AdminUsers extends Component {
             console.error("Failed to save user via API:", error);
             this.setState({ isSaving: false }); 
         }
+    };
+
+    handleOpenDeleteModal = (user) => {
+        this.setState({
+            isDeleteModalOpen: true,
+            currentUserToDelete: user,
+        });
+    };
+
+    handleCloseDeleteModal = () => {
+        this.setState({
+            isDeleteModalOpen: false,
+            currentUserToDelete: null,
+        });
     };
 
     paginate = (pageNumber) => {
@@ -131,8 +148,10 @@ class AdminUsers extends Component {
             currentPage, 
             itemsPerPage, 
             tokens,
-            isModalOpen, 
-            currentUserToEdit, 
+            isEditModalOpen,
+            isDeleteModalOpen, 
+            currentUserToEdit,
+            currentUserToDelete, 
             isSaving  
         } = this.state;
         return (
@@ -180,7 +199,7 @@ class AdminUsers extends Component {
                                                 {this.handleTokenFind(tokens, user)}</TableCell>
                                             <TableCell>
                                                 <Button icon='edit' onClick={() => this.handleEditUser(user)} />
-                                                <Button icon='trash' />
+                                                <Button icon='trash' onClick={() => this.handleOpenDeleteModal(user)} />
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -194,10 +213,17 @@ class AdminUsers extends Component {
                 {currentUserToEdit && (
                     <UserEditModal 
                         currentUser={currentUserToEdit}
-                        isOpen={isModalOpen}
+                        isOpen={isEditModalOpen}
                         onClose={this.handleCloseModal}
                         onSave={this.handleSaveUserEdit}
                         isSaving={isSaving}
+                    />
+                )}
+                {currentUserToDelete && (
+                    <DeleteModal 
+                        user={currentUserToDelete}
+                        isOpen={isDeleteModalOpen}
+                        onClose={this.handleCloseDeleteModal}
                     />
                 )}
                 </div>
