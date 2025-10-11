@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { data } from 'react-router-dom';
 
 const API_URL = "http://localhost:8000"
 
@@ -68,7 +69,7 @@ async function getItems(item, token) {
     }
 }
 
-async function updateItem(item, ID, token, user_name, user_role, user_password) {
+async function updateUser(item, ID, token, user_name, user_role, user_password) {
     try {
 
         const requestHeaders = {
@@ -98,6 +99,27 @@ async function updateItem(item, ID, token, user_name, user_role, user_password) 
     }
 }
 
+async function updateItem(item, ID, token, itemData) {
+    try {
+
+        const requestHeaders = {
+            "Content-Type": "application/json",
+            "Authorization": `Token ${token}`
+        }
+
+        const response = await axios.patch(`${API_URL}/${item}/${ID}/`, 
+        itemData,
+        {
+            headers: requestHeaders
+        });
+        return response.data;
+
+    } catch (error) {
+        console.error(`Failed to fetch ${item}:`, error);
+        throw error;
+    }
+}
+
 async function deleteItem(item, ID, token) {
     try {
 
@@ -114,4 +136,4 @@ async function deleteItem(item, ID, token) {
     }
 }
 
-export { getItem, getItems, getUserData, updateItem, deleteItem };
+export { getItem, getItems, getUserData, updateUser, updateItem, deleteItem };

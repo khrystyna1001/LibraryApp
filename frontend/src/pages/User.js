@@ -15,7 +15,7 @@ import {
 } from 'semantic-ui-react'
 
 import withRouter from '../utils/withRouter';
-import { getItem, updateItem } from '../api';
+import { getItem, updateUser } from '../api';
 import { AuthContext } from '../utils/authContext';
 
 
@@ -137,7 +137,7 @@ class User extends Component {
             
             const roleToSend = currentRole.charAt(0).toUpperCase() + currentRole.slice(1);
             
-            const response = await updateItem(
+            const response = await updateUser(
                 "user", 
                 viewedUser.id, 
                 token, 

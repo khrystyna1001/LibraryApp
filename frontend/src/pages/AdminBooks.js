@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { getItems } from "../api";
+import { getItems, updateItem } from "../api";
 import NavBar from '../components/Navigation'
 import {
     Table,
@@ -14,9 +14,9 @@ import {
     Card, 
     CardContent, 
     CardDescription,
-    Icon
   } from 'semantic-ui-react'
- import { AuthContext } from "../utils/authContext";
+import { AuthContext } from "../utils/authContext";
+import EditBookModal from "../components/EditBookModal";
 
 class AdminBooks extends Component {
     static contextType = AuthContext;
@@ -29,8 +29,67 @@ class AdminBooks extends Component {
           itemsPerPage: 8,
           error: null,
           loading: true,
+          isEditModalOpen: false,
+          isDeleteModalOpen: false,
+          currentBookToEdit: null,
+          currentBookToDelete: null,
+          isSaving: false,
         };
     }
+
+    handleEditBook = (book) => {
+        this.setState({
+            isEditModalOpen: true,
+            currentBookToEdit: book,
+        });
+    };
+
+    handleCloseModal = () => {
+        this.setState({
+            isEditModalOpen: false,
+            currentBookToEdit: null,
+        });
+    };
+
+    handleSaveBookEdit = async (updatedBook) => {
+        this.setState({ isSaving: true });
+    
+        const token = localStorage.getItem('token') || 'mock-token'; 
+        const { id, title, description, published_date, is_available, author } = updatedBook;
+        
+        try {
+            await updateItem('books', id, token, updatedBook);
+    
+            this.setState(prevState => ({
+                books: prevState.books.map(book => {
+                    if (!book) return book; 
+                    
+                    return book.id === updatedBook.id ? updatedBook : book;
+                }),
+                isSaving: false,
+                isEditModalOpen: false,
+                currentBookToEdit: null,
+            }));
+    
+        } catch (error) {
+            console.error("Failed to save book via API:", error);
+            this.setState({ isSaving: false }); 
+        }
+    };
+
+    handleOpenDeleteModal = (book) => {
+        this.setState({
+            isDeleteModalOpen: true,
+            currentBookToDelete: book,
+        });
+    };
+
+    handleCloseDeleteModal = () => {
+        this.setState({
+            isDeleteModalOpen: false,
+            currentBookToDelete: null,
+        });
+    };
 
     async componentDidMount() {
         const { user } = this.context;
@@ -68,7 +127,18 @@ class AdminBooks extends Component {
 }
 
     render() {
-        const { books, loading } = this.state;
+        const { books, 
+            loading, 
+            error, 
+            currentPage, 
+            itemsPerPage, 
+            tokens,
+            isEditModalOpen,
+            isDeleteModalOpen, 
+            currentBookToEdit,
+            currentBookToDelete, 
+            isSaving  
+        } = this.state;
 
         return (
             <div>
@@ -128,10 +198,8 @@ class AdminBooks extends Component {
                                             <TableCell>{book.published_date}</TableCell> 
                                             <TableCell>{book.is_available ? "Available" : "Not Available"}</TableCell>
                                             <TableCell>
-                                                <Button icon="edit">
-                                                </Button>
-                                                <Button icon="trash">
-                                                </Button>
+                                                <Button icon="edit" onClick={() => this.handleEditBook(book)}/>
+                                                <Button icon="trash"/>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -140,6 +208,22 @@ class AdminBooks extends Component {
                         </div>
                     </div>
                 )}
+                {currentBookToEdit && (
+                    <EditBookModal
+                        currentBook={currentBookToEdit}
+                        isOpen={isEditModalOpen}
+                        onClose={this.handleCloseModal}
+                        onSave={this.handleSaveBookEdit}
+                        isSaving={isSaving}
+                    />
+                )}
+                {/* {currentBookToDelete && (
+                    <DeleteModal 
+                        user={currentBookToDelete}
+                        isOpen={isDeleteModalOpen}
+                        onClose={this.handleCloseDeleteModal}
+                    />
+                )} */}
                 </div>
             </div>
         )

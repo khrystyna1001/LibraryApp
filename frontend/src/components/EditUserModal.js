@@ -18,7 +18,7 @@ import {
 } from 'semantic-ui-react';
 
 import { useAuth } from '../utils/authContext';
-import { getItem, updateItem, deleteItem } from '../api';
+import { getItem, updateUser } from '../api';
 
 const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
 
@@ -80,7 +80,7 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
             
             const roleToSend = formData.role.charAt(0).toUpperCase() + formData.role.slice(1);
             
-            const response = await updateItem(
+            const response = await updateUser(
                 "users", 
                 formData.id, 
                 token, 

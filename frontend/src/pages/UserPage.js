@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-import { updateItem } from '../api';
+import { updateUser } from '../api';
 import { AuthContext } from '../utils/authContext';
 import Footer from '../components/Footer';
 import '../App.css'
@@ -85,7 +85,7 @@ class UserPage extends Component {
             
             const roleToSend = localRole.charAt(0).toUpperCase() + localRole.slice(1);
             
-            const response = await updateItem(
+            const response = await updateUser(
                 "user", 
                 localId, 
                 token, 
