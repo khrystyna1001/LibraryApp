@@ -18,7 +18,7 @@ import {
 } from 'semantic-ui-react';
 
 import { useAuth } from '../utils/authContext';
-import { getItem, updateUser } from '../api';
+import { getItem, updateItem, updateUser } from '../api';
 
 const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
 
@@ -69,31 +69,25 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
 
     const handleFormSubmit = async () => {
         const updatedUser = {
-            ...currentUser, 
             username: formData.username,
-            groups: [formData.role], 
+            role: [formData.role], 
         };
 
         try {
             const token = localStorage.getItem('token') || 'mock_token_123';
-            const user_password = null; 
             
-            const roleToSend = formData.role.charAt(0).toUpperCase() + formData.role.slice(1);
-            
-            const response = await updateUser(
+            const response = await updateItem(
                 "users", 
                 formData.id, 
                 token, 
-                formData.username, 
-                roleToSend, 
-                user_password
+                updatedUser
             );
             
             console.log('API Response:', response);
             
             if (response) {
                 console.log("Updated User Data Successfully", updatedUser);
-                onSave(updatedUser);
+                onSave({...currentUser, ...updatedUser});
                 onClose();
             }
         } catch (e) {

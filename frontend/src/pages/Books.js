@@ -127,10 +127,10 @@ class Books extends Component {
         return (
             <div>
                 <NavBar />
-                <div style={{ margin: '55px', height: '100vh', overflowY: 'auto' }}>
+                <div style={{ margin: '50px', height: '35vh' }}>
                     <h1>Book List</h1>
                     { books.length > 0 ? 
-                    (<div style={{ marginBottom: '30px' }}> 
+                    (<div> 
                     <Grid columns={4}>
                     {currentBooks.map(book => (
                         <GridColumn key={book.id}>

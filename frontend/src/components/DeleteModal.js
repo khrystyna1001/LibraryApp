@@ -7,18 +7,20 @@ import {
 } from 'semantic-ui-react'
 import { deleteItem } from '../api';
 
-function DeleteUserModal({ user, isOpen, onClose, onDelete }) {
-  const handleDeleteUser = async (e) => {
+function DeleteModal({ item, itemName, apiItemName, isOpen, onClose, onDelete }) {
+  const handleDeleteItem = async (e) => {
     e.preventDefault();
           const token = localStorage.getItem('token') || 'mock-token';
-          const { id } = user;
+          const { id } = item;
   
           try {
-              await deleteItem('users', id, token);
+              await deleteItem(`${apiItemName}`, id, token);
               onDelete(id); 
               onClose();
           } catch (error) {
-              console.error("Failed to delete user via API:", error);
+              console.error(`Failed to delete ${itemName} via API:`, error);
+          } finally {
+              onClose();
           }
       }
 
@@ -27,7 +29,7 @@ function DeleteUserModal({ user, isOpen, onClose, onDelete }) {
       onClose={onClose}
       open={isOpen}
     >
-      <ModalHeader>Are you sure you want to delete {user?.username}?</ModalHeader>
+      <ModalHeader>Are you sure you want to delete {itemName}?</ModalHeader>
       <ModalActions>
         <Button color='black' onClick={onClose}>
           No
@@ -36,7 +38,7 @@ function DeleteUserModal({ user, isOpen, onClose, onDelete }) {
           content="Yes"
           labelPosition='right'
           icon='checkmark'
-          onClick={handleDeleteUser}
+          onClick={handleDeleteItem}
           negative
         />
       </ModalActions>
@@ -44,4 +46,4 @@ function DeleteUserModal({ user, isOpen, onClose, onDelete }) {
   )
 }
 
-export default DeleteUserModal;
+export default DeleteModal;

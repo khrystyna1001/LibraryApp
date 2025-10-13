@@ -15,7 +15,7 @@ import { Table,
     CardDescription
  } from "semantic-ui-react";
  import { AuthContext } from "../utils/authContext";
-import DeleteModal from "../components/DeleteUserModal";
+import DeleteModal from "../components/DeleteModal";
 
 class AdminUsers extends Component {
     static contextType = AuthContext;
@@ -221,7 +221,9 @@ class AdminUsers extends Component {
                 )}
                 {currentUserToDelete && (
                     <DeleteModal 
-                        user={currentUserToDelete}
+                        item={currentUserToDelete}
+                        itemName={currentUserToDelete.username}
+                        apiItemName={'users'}
                         isOpen={isDeleteModalOpen}
                         onClose={this.handleCloseDeleteModal}
                     />

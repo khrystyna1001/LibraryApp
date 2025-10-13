@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from books.models import Book
+from authors.models import Author
 
 class BookSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
     class Meta:
         model = Book
         fields = [
@@ -14,9 +14,13 @@ class BookSerializer(serializers.ModelSerializer):
             'author'
         ]
 
-    def get_author(self, obj):
+    def to_representation(self, instance):
         from authors.serializer import AuthorSerializer
-        return AuthorSerializer(obj.author.all(), many=True, read_only=True).data
+        representation = super().to_representation(instance)
+        authors = instance.author.all()
+        representation['author'] = AuthorSerializer(authors, many=True).data
+        
+        return representation
 
 class AuthorBookSerializer(serializers.ModelSerializer):
     class Meta:

@@ -4,7 +4,7 @@ from django.db import models
 from app.models import Person
 
 class Author(Person):
-    role = Person.AUTHOR
+    #role = Person.AUTHOR
 
     def get_books(self):
         return self.books_written.all()

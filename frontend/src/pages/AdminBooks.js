@@ -17,6 +17,7 @@ import {
   } from 'semantic-ui-react'
 import { AuthContext } from "../utils/authContext";
 import EditBookModal from "../components/EditBookModal";
+import DeleteModal from "../components/DeleteModal";
 
 class AdminBooks extends Component {
     static contextType = AuthContext;
@@ -55,16 +56,18 @@ class AdminBooks extends Component {
         this.setState({ isSaving: true });
     
         const token = localStorage.getItem('token') || 'mock-token'; 
-        const { id, title, description, published_date, is_available, author } = updatedBook;
+        const { id } = updatedBook;
         
         try {
-            await updateItem('books', id, token, updatedBook);
+            const response = await updateItem('books', id, token, updatedBook);
     
             this.setState(prevState => ({
                 books: prevState.books.map(book => {
                     if (!book) return book; 
                     
-                    return book.id === updatedBook.id ? updatedBook : book;
+                    console.log(response)
+                    
+                    return book.id === response.id ? response : book;
                 }),
                 isSaving: false,
                 isEditModalOpen: false,
@@ -75,6 +78,14 @@ class AdminBooks extends Component {
             console.error("Failed to save book via API:", error);
             this.setState({ isSaving: false }); 
         }
+    };
+
+    handleDeleteBook = (deletedBookId) => {
+        this.setState(prevState => ({
+            books: prevState.books.filter(book => book.id !== deletedBookId),
+            isDeleteModalOpen: false, 
+            currentBookToDelete: null,
+        }));
     };
 
     handleOpenDeleteModal = (book) => {
@@ -199,7 +210,7 @@ class AdminBooks extends Component {
                                             <TableCell>{book.is_available ? "Available" : "Not Available"}</TableCell>
                                             <TableCell>
                                                 <Button icon="edit" onClick={() => this.handleEditBook(book)}/>
-                                                <Button icon="trash"/>
+                                                <Button icon="trash" onClick={() => this.handleOpenDeleteModal(book)}/>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -217,13 +228,16 @@ class AdminBooks extends Component {
                         isSaving={isSaving}
                     />
                 )}
-                {/* {currentBookToDelete && (
+                {currentBookToDelete && (
                     <DeleteModal 
-                        user={currentBookToDelete}
+                        item={currentBookToDelete}
+                        itemName={currentBookToDelete.title}
+                        apiItemName={'books'}
                         isOpen={isDeleteModalOpen}
                         onClose={this.handleCloseDeleteModal}
+                        onDelete={this.handleDeleteBook} 
                     />
-                )} */}
+                )}
                 </div>
             </div>
         )

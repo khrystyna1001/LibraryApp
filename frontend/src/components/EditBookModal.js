@@ -107,7 +107,7 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
             description: formData.description,
             published_date: formData.published_date,
             is_available: formData.is_available,
-            author: [formData.author],
+            author: [formData.author.id],
         };
 
         try {

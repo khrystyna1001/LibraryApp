@@ -111,7 +111,8 @@ class Book extends Component {
         return (
             <React.Fragment>
                     <NavBar />
-                    <Card style={{ display: 'flex', margin: 'auto', align_items: 'center', marginTop: '55px', width: '900px' }}>
+                    <div style={{ height: '35vh' }}>
+                    <Card style={{ display: 'flex', margin: 'auto', align_items: 'center', marginBottom: '10px', marginTop: '55px', width: '900px' }}>
 
                         <CardContent header={book.title}></CardContent>
                                 <CardContent>
@@ -156,15 +157,20 @@ class Book extends Component {
                         </div>
                             {/*LIBARARIAN / ADMIN UI*/}
                         <div className='ui two buttons'>
-                            {book.is_available && isAdmin ? 
+                            {book.id && isAdmin ? 
                                 <>
+                                <div className='ui two buttons'>
                                     <Button onClick={this.handleIssueButton}> Issue Book</Button>
                                     <Button onClick={this.handleEditButton}> Edit Book</Button>
-                                    <Button onClick={this.handleEditButton}> Delete Book</Button></> :
+                                </div>
+                                <div className='ui button'>
+                                    <Button onClick={this.handleEditButton}> Delete Book</Button>
+                                </div></> :
                                 <></>
                             }
                         </div>
                     </Card>
+                    </div>
                     <Footer />
             </React.Fragment>
         )

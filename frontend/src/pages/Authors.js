@@ -116,7 +116,7 @@ class Authors extends Component {
             <React.Fragment>
                 <div>
                 <NavBar />
-                    <div style={{ margin: '55px' }}>
+                    <div style={{ margin: '55px', height: '20vh' }}>
                         <h1>Author  List</h1>
                         { authors.length > 0 ? (
                             <Grid columns={4}>

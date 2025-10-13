@@ -124,7 +124,8 @@ class Author extends Component {
         return (
             <React.Fragment>
                 <NavBar />
-                <Card style={{ display: 'flex', margin: 'auto', align_items: 'center', marginTop: '55px', width: '900px' }}  key={author.id}>
+                <div style={{ height: '20vh' }}>
+                <Card style={{ display: 'flex', margin: 'auto', align_items: 'center', marginTop: '55px', marginBottom: '10px', width: '900px' }}  key={author.id}>
                     <CardContent header={author.full_name}></CardContent>
                         
                     <CardContent>
@@ -166,6 +167,7 @@ class Author extends Component {
                             )}
                         </div>
                 </Card>
+                </div>
                 <Footer />
             </React.Fragment>
         )
