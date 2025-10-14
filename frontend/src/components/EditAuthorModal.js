@@ -11,8 +11,6 @@ import {
     Form,
     FormField,
     Dropdown,
-    DropdownMenu,
-    DropdownItem,
     Label,
     Divider,
     FormTextArea,
@@ -22,72 +20,59 @@ import {
 import { useAuth } from '../utils/authContext';
 import { getItem, getItems, updateItem } from '../api';
 
-const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
+const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) => {
 
     const { user } = useAuth();
     const [formData, setFormData] = useState(null);
-    const [fetchedAuthors, setFetchedAuthors] = useState([])
+    const [fetchedBooks, setFetchedBooks] = useState([]);
     const currentRole = user.role && user.role ? user.role : 'visitor';
     const isAdmin = currentRole === 'admin';
 
-    const availabilityOptions = [
-        { key: 'a', text: 'Available', value: true },
-        { key: 'u', text: 'Unavailable', value: false },
-    ]
-
-    const getAvilabilityColor = (availability) => {
-        switch(availability) {
-            case true: return 'green';
-            case false: return 'red';
-            default: return 'red';
-        }
-    };
-
-    const handleAddAuthor = (selectedAuthorId) => {
-        const newAuthorObject = fetchedAuthors.find(
-            (a) => a.id === selectedAuthorId
+    const handleAddBook = (selectedBookId) => {
+        const newBookObject = fetchedBooks.find(
+            (a) => a.id === selectedBookId
         );
         
-        if (newAuthorObject) {
+        if (newBookObject) {
             setFormData((prevFormData) => {
-                const isAuthorAlreadyAdded = prevFormData.author.some(
-                    (a) => a.id === newAuthorObject.id
+                const isBookAlreadyAdded = prevFormData.books_written.some(
+                    (book) => book.id === newBookObject.id
                 );
 
-                if (!isAuthorAlreadyAdded) {
+                if (!isBookAlreadyAdded) {
                     return {
                         ...prevFormData,
-                        author: [...prevFormData.author, newAuthorObject],
+                        author: [...prevFormData.books_written, newBookObject],
                     };
                 }
 
                 return prevFormData;
             });
         } else {
-            console.error(`Author with ID ${selectedAuthorId} not found.`);
+            console.error(`Book with ID ${selectedBookId} not found.`);
         }
     }
     
     /**
      * Handles removing an author from the author list.
-     * @param {string} authorIdToRemove - The ID of the author to remove.
+     * @param {string} bookIdToRemove - The ID of the author to remove.
      */
-    const handleRemoveAuthor = (authorIdToRemove) => {
+    const handleRemoveBook = (bookIdToRemove) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
-            author: prevFormData.author.filter(
-                (a) => a.id !== authorIdToRemove
+            books_written: prevFormData.books_written.filter(
+                (book) => book.id !== bookIdToRemove
             ),
         }));
     };
 
-    const authorOptions = fetchedAuthors.map(author => ({
-        key: author.id,
-        text: author.full_name,
-        value: author.id,
+    const bookOptions = fetchedBooks.map(book => ({
+        key: book.id,
+        text: book.title,
+        value: book.id,
     }));
 
-    const fetchAuthors = async () => {
+    const fetchBooks = async () => {
         
         if (!user.isAuthenticated) {
              return;
@@ -95,26 +80,18 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const fetchedAuthors = await getItems('authors', token);
+            const fetchedBooks = await getItems('books', token);
 
-            if (typeof fetchedAuthors === 'object' && fetchedAuthors !== null) {
-                setFetchedAuthors(fetchedAuthors);
+            if (typeof fetchedBooks === 'object' && fetchedBooks !== null) {
+                setFetchedBooks(fetchedBooks);
             } else {
-                console.error("API did not return any authors:", fetchedAuthors);
-                setFetchedAuthors([]);
+                console.error("API did not return any books:", fetchedBooks);
+                setFetchedBooks([]);
             }
         } catch (error) {
-            console.error("Failed to fetch authors:", error);
-            setFetchedAuthors([]);
+            console.error("Failed to fetch books:", error);
+            setFetchedBooks([]);
         }
-    }
-
-    const handleAvailabilityOnChange = (availability) => {
-        console.log('Changing availability to:', availability, 'Current formData:', formData);
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            is_available: availability,
-        }));
     }
 
     const handleInputChange = (e) => {
@@ -126,61 +103,61 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
     };
 
     const handleFormSubmit = async () => {
-        const authorIds = formData.author.map(a => a.id);
+        const bookIds = formData.books_written.map(book => book.id);
 
-        const updatedBook = {
-            ...currentBook, 
-            title: formData.title,
-            description: formData.description,
-            published_date: formData.published_date,
-            is_available: formData.is_available,
-            author: authorIds,
+        const updatedAuthor = {
+            ...currentAuthor, 
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            role: formData.role,
+            full_name: formData.first_name + " " + formData.last_name,
+            books_written: bookIds,
         };
 
         try {
             const token = localStorage.getItem('token') || 'mock_token_123';
             
             const response = await updateItem(
-                "books", 
+                "authors", 
                 formData.id, 
                 token, 
-                updatedBook,
+                updatedAuthor,
             );
             
             console.log('API Response:', response);
             
             if (response) {
-                const bookToSave = {
-                    ...updatedBook,
-                    author: formData.author
+                const authorToSave = {
+                    ...updatedAuthor,
+                    books_written: formData.books_written
                 };
 
-                onSave(updatedBook);
+                onSave(authorToSave);
                 onClose();
             }
         } catch (e) {
-            console.error("Failed to update book data:", e.response ? e.response.data : e);
+            console.error("Failed to update author data:", e.response ? e.response.data : e);
         }
     };
 
     useEffect(() => {
 
-        if (currentBook) {
+        if (currentAuthor) {
             
             setFormData({
-                id: currentBook.id,
-                title: currentBook.title,
-                description: currentBook.description,
-                published_date: currentBook.published_date,
-                is_available: currentBook.is_available,
-                author: Array.isArray(currentBook.author) ? currentBook.author : [currentBook.author].filter(Boolean)
+                id: currentAuthor.id,
+                first_name: currentAuthor.first_name,
+                last_name: currentAuthor.last_name,
+                role: currentAuthor.role,
+                full_name: currentAuthor.full_name,
+                books_written: Array.isArray(currentAuthor.books_written ? currentAuthor.books_written : [currentAuthor.books_written].filter(Boolean))
             });
         }
-    }, [currentBook]);
+    }, [currentAuthor]);
 
     useEffect(() => {
         if (isOpen) { 
-            fetchAuthors();
+            fetchBooks();
         }
     }, [isOpen, user.isAuthenticated]);
 
@@ -196,13 +173,13 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
         >
             <ModalHeader>
                 <Icon name='user circle' />
-                Edit Book Profile
+                Edit Author Profile
             </ModalHeader>
             <ModalContent>
                 <Form>
                     <FormField>
                         <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
-                            Book ID
+                            Author ID
                         </label>
                         <Input 
                             value={formData.id || 'N/A'} 
@@ -215,17 +192,26 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
 
                     <FormField required>
                         <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
-                            Title
+                            First Name
                         </label>
                         <Input
-                            name='title'
+                            name='first name'
                             type='text'
                             onChange={handleInputChange} 
-                            value={formData.title || ''} 
+                            value={formData.first_name || ''} 
                             disabled={!isAdmin}
-                            icon='book'
+                            icon='user'
                             iconPosition='left'
-                            placeholder='Enter book title'
+                            placeholder='Enter first name title'
+                            fluid
+                        />
+                        <Input
+                            name='last name'
+                            type='text'
+                            onChange={handleInputChange} 
+                            value={formData.last_name || ''} 
+                            disabled={!isAdmin}
+                            placeholder='Enter last name title'
                             fluid
                         />
                     </FormField>
@@ -235,103 +221,55 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
                             Description
                         </label>
                         <FormTextArea
-                            name='description'
+                            name='role'
                             type='text'
                             onChange={handleInputChange} 
-                            value={formData.description || ''} 
-                            disabled={!isAdmin}
+                            value={formData.role || ''} 
+                            disabled
                             iconPosition='left'
-                            placeholder='Enter book title'
                             fluid
                         />
                     </FormField>
 
                     <FormField required>
                         <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
-                            Published Date
+                            Full Name
                         </label>
                         <Input
-                            name='published_date'
-                            type='date'
+                            name='full name'
+                            type='text'
                             onChange={handleInputChange} 
-                            value={formData.published_date || ''} 
-                            disabled={!isAdmin}
-                            placeholder='Enter book published date'
+                            value={formData.full_name || ''} 
+                            disabled
                             fluid
                         />
-                    </FormField>
-
-                    <FormField required>
-                        <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
-                            Availability
-                        </label>
-                        <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '12px',
-                            padding: '12px',
-                            backgroundColor: '#f8f9fa',
-                            borderRadius: '6px',
-                            border: '1px solid #e0e0e0'
-                        }}>
-                            <Label 
-                                color={getAvilabilityColor(formData.is_available)} 
-                                size='large'
-                                style={{ textTransform: 'capitalize' }}
-                            >
-                                <Icon name='shield' />
-                                {formData.is_available ? 'Available' : 'Not Available'}
-                            </Label>
-                            <div style={{ flex: 1 }} />
-                            <Dropdown
-                                button
-                                disabled={!isAdmin}
-                                className='icon'
-                                labeled
-                                icon='edit'
-                                text={isAdmin ? 'Change Availability' : 'Locked'}
-                                color={isAdmin ? 'teal' : 'grey'}
-                            >
-                                <DropdownMenu>
-                                    {availabilityOptions.map(option => (
-                                        <DropdownItem
-                                            key={option.key}
-                                            text={option.text}
-                                            value={option.value}
-                                            icon='shield'
-                                            onClick={() => handleAvailabilityOnChange(option.value)}
-                                        />
-                                    ))}
-                                </DropdownMenu>
-                            </Dropdown>
-                        </div>
                     </FormField>
 
                     <Divider />
 
                     <Header as='h4' dividing>
-                        <Icon name='users' />
-                        Authors
+                        <Icon name='book' />
+                        Books
                     </Header>
 
                     <FormField>
                         <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
-                            Add Author
+                            Add Book
                         </label>
                         <Dropdown
-                            placeholder='Select Author to Add'
+                            placeholder='Select Book to Add'
                             fluid
                             selection
-                            options={authorOptions}
+                            options={bookOptions}
                             value={''}
-                            onChange={(e, { value }) => handleAddAuthor(value)} 
+                            onChange={(e, { value }) => handleAddBook(value)} 
                             disabled={!isAdmin}
                             search
                         />
                     </FormField>
                     <FormField>
                         <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                            Current Authors ({formData.author.length})
+                            Current Books ({formData.books_written.length})
                         </label>
                         <div style={{ 
                             display: 'flex', 
@@ -343,18 +281,18 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
                             borderRadius: '4px',
                             border: '1px solid #e0e0e0'
                         }}>
-                            {formData.author.length > 0 ? (
-                                formData.author.map(a => (
+                            {formData.books_written.length > 0 ? (
+                                formData.books_written.map(book => (
                                     <Label 
-                                        key={a.id} 
+                                        key={book.id} 
                                         size='large' 
                                         color='blue'
                                     >
-                                        {a.full_name}
+                                        {book.title}
                                         {isAdmin && (
                                             <Icon 
                                                 name='delete' 
-                                                onClick={() => handleRemoveAuthor(a.id)} 
+                                                onClick={() => handleRemoveBook(book.id)} 
                                                 style={{ cursor: 'pointer', marginLeft: '5px' }}
                                             />
                                         )}
@@ -362,7 +300,7 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
                                 ))
                             ) : (
                                 <span style={{ color: '#999', fontStyle: 'italic' }}>
-                                    No authors assigned yet.
+                                    No books assigned yet.
                                 </span>
                             )}
                         </div>
@@ -381,7 +319,7 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
                         }}>
                             <Icon name='lock' color='orange' />
                             <span style={{ fontSize: '0.9em', color: '#856404' }}>
-                                Only administrators can edit book information
+                                Only administrators can edit author information
                             </span>
                         </div>
                     )}
@@ -406,4 +344,4 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
     )
 }
 
-export default EditBookModal;
+export default EditAuthorModal;

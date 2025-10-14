@@ -146,6 +146,7 @@ class UserPage extends Component {
                     />
 
                     <Form.Input
+                        error={{ content: 'Username can not be empty', pointing: 'below' }}
                         label='Username' 
                         type='text'
                         onChange={this.handleUserOnChange} 
@@ -156,6 +157,7 @@ class UserPage extends Component {
                     
                     <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end' }}>
                         <Form.Input
+                            error={{ content: 'Role can not be empty', pointing: 'below' }}
                             style={{ flex: 1 }}
                             label='Role (Current Group)'
                             value={userRoleDisplay} 

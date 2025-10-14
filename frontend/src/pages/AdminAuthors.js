@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { getItems } from "../api";
+import { getItems, updateItem } from "../api";
 import NavBar from '../components/Navigation'
 import withRouter from "../utils/withRouter";
 import { Card, 
@@ -19,6 +19,7 @@ import { Card,
  import { AuthContext } from "../utils/authContext";
  import Paginate from "../components/Pagination";
  import DeleteModal from "../components/DeleteModal";
+ import EditAuthorModal from "../components/EditAuthorModal";
 
 class AdminAuthors extends Component {
     static contextType = AuthContext;
@@ -31,8 +32,11 @@ class AdminAuthors extends Component {
             itemsPerPage: 10,
             error: null,
             loading: true,
+            isEditModalOpen: false,
             isDeleteModalOpen: false,
             currentAuthorToDelete: null,
+            currentAuthorToEdit: null,
+            isSaving: false
         };
     }
 
@@ -43,6 +47,48 @@ class AdminAuthors extends Component {
     handleAuthorButton = (authorId) => {
         this.props.router.navigate(`/authors/${authorId}`);
     }
+
+    handleEditAuthor = (author) => {
+        this.setState({
+            isEditModalOpen: true,
+            currentAuthorToEdit: author,
+        });
+    };
+
+    handleCloseModal = () => {
+        this.setState({
+            isEditModalOpen: false,
+            currentAuthorToEdit: null,
+        });
+    };
+
+    handleSaveAuthorEdit = async (updatedAuthor) => {
+        this.setState({ isSaving: true });
+    
+        const token = localStorage.getItem('token') || 'mock-token'; 
+        const { id } = updatedAuthor;
+        
+        try {
+            const response = await updateItem('authors', id, token, updatedAuthor);
+    
+            this.setState(prevState => ({
+                authors: prevState.authors.map(author => {
+                    if (!author) return author; 
+                    
+                    console.log(response)
+                    
+                    return author.id === response.id ? response : author;
+                }),
+                isSaving: false,
+                isEditModalOpen: false,
+                currentAuthorToEdit: null,
+            }));
+    
+        } catch (error) {
+            console.error("Failed to save book via API:", error);
+            this.setState({ isSaving: false }); 
+        }
+    };
 
     async componentDidMount() {
         const { user } = this.context;
@@ -113,8 +159,11 @@ class AdminAuthors extends Component {
             error, 
             currentPage, 
             itemsPerPage,
+            isEditModalOpen,
+            currentAuthorToEdit,
             isDeleteModalOpen,
             currentAuthorToDelete, 
+            isSaving
         } = this.state;
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
@@ -183,7 +232,7 @@ class AdminAuthors extends Component {
                                             )}
                                             </TableCell>
                                             <TableCell>
-                                                <Button icon='edit'>
+                                                <Button icon='edit' onClick={() => this.handleEditAuthor(author)}>
                                                 </Button>
                                                 <Button icon='trash' onClick={() => this.handleOpenDeleteModal(author)}>
                                                 </Button>
@@ -202,6 +251,15 @@ class AdminAuthors extends Component {
                             />
                         </div>
                     </div>
+                )}
+                {currentAuthorToEdit && (
+                    <EditAuthorModal
+                        currentBook={currentAuthorToEdit}
+                        isOpen={isEditModalOpen}
+                        onClose={this.handleCloseModal}
+                        onSave={this.handleSaveAuthorEdit}
+                        isSaving={isSaving}
+                    />
                 )}
                 {currentAuthorToDelete && (
                     <DeleteModal 
