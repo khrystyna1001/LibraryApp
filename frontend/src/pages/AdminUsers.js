@@ -12,10 +12,12 @@ import { Table,
     Button, 
     Card,
     CardContent,
-    CardDescription
+    CardDescription,
+    Message
  } from "semantic-ui-react";
  import { AuthContext } from "../utils/authContext";
 import DeleteModal from "../components/DeleteModal";
+import Paginate from "../components/Pagination";
 
 class AdminUsers extends Component {
     static contextType = AuthContext;
@@ -26,7 +28,7 @@ class AdminUsers extends Component {
           users: [],
           tokens: [],
           currentPage: 1,
-          itemsPerPage: 8,
+          itemsPerPage: 10,
           error: null,
           loading: true,
           isEditModalOpen: false,
@@ -64,12 +66,10 @@ class AdminUsers extends Component {
         this.setState({ isSaving: true });
         
         const token = localStorage.getItem('token') || 'mock-token'; 
-        const { id, username, groups } = updatedUser;
-        const user_role = groups[0];
-        const user_password = null;
+        const { id } = updatedUser;
         
         try {
-            await updateItem('users', id, token, username, user_role, user_password);
+            await updateItem('users', id, token, updatedUser);
 
             this.setState(prevState => ({
                 users: prevState.users.map(user => 
@@ -141,6 +141,14 @@ class AdminUsers extends Component {
         }
     }
 
+    handleDeleteUser = (deletedUserId) => {
+        this.setState(prevState => ({
+            users: prevState.users.filter(user => user.id !== deletedUserId),
+            isDeleteModalOpen: false, 
+            currentUserToDelete: null,
+        }));
+    };
+
     render() {
         const { users, 
             loading, 
@@ -154,6 +162,11 @@ class AdminUsers extends Component {
             currentUserToDelete, 
             isSaving  
         } = this.state;
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentUsers = users.slice(startIndex, endIndex);
+
         return (
             <div>
                 <style jsx="true">{`
@@ -164,6 +177,16 @@ class AdminUsers extends Component {
                 <NavBar /> 
                 
                 <div style={{ margin: '55px' }}>
+                {error && (
+                    <Message 
+                        negative
+                        icon='warning sign'
+                        header='Data Loading Error'
+                        content={error.message || 'An unknown error occurred while fetching data.'}
+                        onDismiss={() => this.setState({ error: null })}
+                    />
+                )}
+
                 {loading ? (
                     <Card>
                     <CardContent>
@@ -190,7 +213,7 @@ class AdminUsers extends Component {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {users.map(user => (
+                                    {currentUsers.map(user => (
                                         <TableRow key={user.id}>
                                             <TableCell>{user.id}</TableCell>
                                             <TableCell>{user.username}</TableCell>
@@ -206,7 +229,14 @@ class AdminUsers extends Component {
                                 </TableBody>
                             </Table>
                         </div>
-                        {/* PAGINATION */}
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                            <Paginate
+                                itemsPerPage={itemsPerPage}
+                                totalItems={users.length}
+                                paginate={this.paginate}
+                                currentPage={currentPage}
+                            />
+                        </div>
                     </div>
                 )}
                 
@@ -226,6 +256,7 @@ class AdminUsers extends Component {
                         apiItemName={'users'}
                         isOpen={isDeleteModalOpen}
                         onClose={this.handleCloseDeleteModal}
+                        onDelete={this.handleDeleteUser}
                     />
                 )}
                 </div>

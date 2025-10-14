@@ -14,10 +14,12 @@ import {
     Card, 
     CardContent, 
     CardDescription,
+    Message
   } from 'semantic-ui-react'
 import { AuthContext } from "../utils/authContext";
 import EditBookModal from "../components/EditBookModal";
 import DeleteModal from "../components/DeleteModal";
+import Paginate from "../components/Pagination";
 
 class AdminBooks extends Component {
     static contextType = AuthContext;
@@ -27,7 +29,7 @@ class AdminBooks extends Component {
         this.state = {
           books: [],
           currentPage: 1,
-          itemsPerPage: 8,
+          itemsPerPage: 10,
           error: null,
           loading: true,
           isEditModalOpen: false,
@@ -134,22 +136,31 @@ class AdminBooks extends Component {
                 error: error,
                 loading: false,
             });
+        }
     }
-}
+
+    paginate = (pageNumber) => {
+        this.setState({
+            currentPage: pageNumber
+        })
+    }
 
     render() {
         const { books, 
             loading, 
             error, 
             currentPage, 
-            itemsPerPage, 
-            tokens,
+            itemsPerPage,
             isEditModalOpen,
             isDeleteModalOpen, 
             currentBookToEdit,
             currentBookToDelete, 
             isSaving  
         } = this.state;
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentBooks = books.slice(startIndex, endIndex);
 
         return (
             <div>
@@ -161,6 +172,16 @@ class AdminBooks extends Component {
                 <NavBar /> 
                 
                 <div style={{ margin: '55px' }}>
+                {error && (
+                    <Message 
+                        negative
+                        icon='warning sign'
+                        header='Data Loading Error'
+                        content={error.message || 'An unknown error occurred while fetching data.'}
+                        onDismiss={() => this.setState({ error: null })}
+                    />
+                )}
+
                 {loading ? (
                     <Card>
                       <CardContent>
@@ -188,7 +209,7 @@ class AdminBooks extends Component {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {books.map(book => (
+                                    {currentBooks.map(book => (
                                         <TableRow key={book.id}>
                                             <TableCell>{book.id}</TableCell>
                                             <TableCell>{book.title}</TableCell>
@@ -216,6 +237,14 @@ class AdminBooks extends Component {
                                     ))}
                                 </TableBody>
                             </Table>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                            <Paginate
+                                itemsPerPage={itemsPerPage}
+                                totalItems={books.length}
+                                paginate={this.paginate}
+                                currentPage={currentPage}
+                            />
                         </div>
                     </div>
                 )}

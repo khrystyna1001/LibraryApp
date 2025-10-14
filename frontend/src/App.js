@@ -14,6 +14,7 @@ import AdminBooks from './pages/AdminBooks';
 import AdminAuthors from './pages/AdminAuthors';
 import AdminUsers from './pages/AdminUsers';
 import User from './pages/User';
+import NotFound from './pages/NotFound';
 
 
 function App() {
@@ -30,7 +31,8 @@ function App() {
           <Route path='/my_profile/' Component={UserPage}></Route>
           <Route path='/authors/:authorID/' Component={Author}></Route>
           <Route path='/user/:userID/' Component={User}></Route>
-          <Route path='/Unauthorized/' Component={UnauthorizedPage}></Route>
+          <Route path='/unauthorized/' Component={UnauthorizedPage}></Route>
+          <Route path='*' Component={NotFound}></Route>
           
           <Route element={<PrivateRoute allowedRoles={['admin']} />}>
             <Route path="/admin/books" element={<AdminBooks />} />

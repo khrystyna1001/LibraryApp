@@ -18,14 +18,49 @@ import {
 } from 'semantic-ui-react';
 
 import { useAuth } from '../utils/authContext';
-import { getItem, updateItem, updateUser } from '../api';
+import { getItem, updateItem, getItems } from '../api';
 
 const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
 
     const { user } = useAuth();
     const [formData, setFormData] = useState(null);
+    const [tokens, setTokens] = useState([]);
     const currentRole = user.role && user.role ? user.role : 'visitor';
     const isAdmin = currentRole === 'admin';
+
+    const handleTokenFind = async (user) => {
+        try {
+            const token = localStorage.getItem('token') || 'mock_token_123';
+            const fetchedTokens = await getItems('tokens', token);
+
+            if (fetchedTokens) {
+                setTokens(fetchedTokens);
+            }
+
+            const t = tokens.find(token => token.user === user.id)?.key
+            console.log(t)
+            return t;
+
+        } catch (e) {
+            console.log("Failed to fetch user tokens:", e)
+        }
+    }
+
+    const generateToken = (length) => {
+        let newToken = '';
+        const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        
+        for (let i = 0; i < length; i++) {
+            const randomInd = Math.floor(Math.random() * characters.length);
+            newToken += characters.charAt(randomInd);
+        }
+
+        setFormData({
+            ...formData,
+            currentToken: newToken || ''
+        });
+        return newToken;
+    }
     
     const groupOptions = [
         { key: 'a', text: 'Admin', value: 'admin' },
@@ -52,8 +87,20 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
                 id: currentUser.id,
                 username: currentUser.username,
                 role: userRole, 
+                currentToken: 'Loading...'
             });
-            console.log('Setting formData with role:', userRole, 'from currentUser.groups:', currentUser.groups);
+            console.log('Setting initial formData (Token Loading...):', userRole);
+
+            const fetchToken = async () => {
+                const tokenKey = await handleTokenFind(currentUser);
+                
+                setFormData(prevData => ({
+                    ...prevData,
+                    currentToken: tokenKey || ''
+                }));
+            }
+
+            fetchToken();
         }
     }, [currentUser]);
 
@@ -67,10 +114,13 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
         });
     };
 
-    const handleFormSubmit = async () => {
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+
         const updatedUser = {
             username: formData.username,
             role: [formData.role], 
+            // currentToken: handleTokenFind(currentUser)
         };
 
         try {
@@ -146,6 +196,27 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
                             placeholder='Enter username'
                             fluid
                         />
+                    </FormField>
+
+                    <FormField required>
+                        <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
+                            Token
+                        </label>
+                        <Input
+                            name='token'
+                            type='text'
+                            onChange={handleInputChange} 
+                            value={formData.currentToken || ''} 
+                            disabled={!isAdmin}
+                            placeholder='N/A'
+                            fluid
+                            action={
+                                <Button>
+                                    Generate Token
+                                </Button>
+                            }
+                        />
+                        
                     </FormField>
 
                     <Divider />

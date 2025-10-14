@@ -13,9 +13,12 @@ import { Card,
     TableRow,
     Button,
     List,
-    ListItem
+    ListItem,
+    Message
  } from "semantic-ui-react";
  import { AuthContext } from "../utils/authContext";
+ import Paginate from "../components/Pagination";
+ import DeleteModal from "../components/DeleteModal";
 
 class AdminAuthors extends Component {
     static contextType = AuthContext;
@@ -25,9 +28,11 @@ class AdminAuthors extends Component {
         this.state = {
             authors: [],
             currentPage: 1,
-            itemsPerPage: 8,
+            itemsPerPage: 10,
             error: null,
             loading: true,
+            isDeleteModalOpen: false,
+            currentAuthorToDelete: null,
         };
     }
 
@@ -74,8 +79,46 @@ class AdminAuthors extends Component {
        }
     }
 
+    handleDeleteAuthor = (deletedAuthorId) => {
+        this.setState(prevState => ({
+            authors: prevState.authors.filter(author => author.id !== deletedAuthorId),
+            isDeleteModalOpen: false, 
+            currentAuthorToDelete: null,
+        }));
+    };
+
+    handleOpenDeleteModal = (author) => {
+        this.setState({
+            isDeleteModalOpen: true,
+            currentAuthorToDelete: author,
+        });
+    };
+
+    handleCloseDeleteModal = () => {
+        this.setState({
+            isDeleteModalOpen: false,
+            currentBookToDelete: null,
+        });
+    };
+
+    paginate = (pageNumber) => {
+        this.setState({
+            currentPage: pageNumber
+        })
+    }
+
     render() {
-        const { authors, loading } = this.state;
+        const { authors, 
+            loading, 
+            error, 
+            currentPage, 
+            itemsPerPage,
+            isDeleteModalOpen,
+            currentAuthorToDelete, 
+        } = this.state;
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentAuthors = authors.slice(startIndex, endIndex);
 
         return (
             <div>
@@ -87,6 +130,16 @@ class AdminAuthors extends Component {
                 <NavBar /> 
                 
                 <div style={{ margin: '55px' }}>
+                {error && (
+                    <Message 
+                        negative
+                        icon='warning sign'
+                        header='Data Loading Error'
+                        content={error.message || 'An unknown error occurred while fetching data.'}
+                        onDismiss={() => this.setState({ error: null })}
+                    />
+                )}
+
                 {loading ? (
                      <Card>
                      <CardContent>
@@ -112,7 +165,7 @@ class AdminAuthors extends Component {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {authors.map(author => (
+                                    {currentAuthors.map(author => (
                                         <TableRow key={author.id}>
                                             <TableCell>{author.id}</TableCell>
                                             <TableCell>{author.full_name}</TableCell>
@@ -132,7 +185,7 @@ class AdminAuthors extends Component {
                                             <TableCell>
                                                 <Button icon='edit'>
                                                 </Button>
-                                                <Button icon='trash'>
+                                                <Button icon='trash' onClick={() => this.handleOpenDeleteModal(author)}>
                                                 </Button>
                                             </TableCell>
                                         </TableRow>
@@ -140,7 +193,25 @@ class AdminAuthors extends Component {
                                 </TableBody>
                             </Table>
                         </div>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                            <Paginate
+                                itemsPerPage={itemsPerPage}
+                                totalItems={authors.length}
+                                paginate={this.paginate}
+                                currentPage={currentPage}
+                            />
+                        </div>
                     </div>
+                )}
+                {currentAuthorToDelete && (
+                    <DeleteModal 
+                        item={currentAuthorToDelete}
+                        itemName={currentAuthorToDelete.full_name}
+                        apiItemName={'authors'}
+                        isOpen={isDeleteModalOpen}
+                        onClose={this.handleCloseDeleteModal}
+                        onDelete={this.handleDeleteAuthor}
+                    />
                 )}
                 </div>
             </div>

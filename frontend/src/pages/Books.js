@@ -127,7 +127,7 @@ class Books extends Component {
         return (
             <div>
                 <NavBar />
-                <div style={{ margin: '50px', height: '35vh' }}>
+                <div style={{ margin: '50px' }}>
                     <h1>Book List</h1>
                     { books.length > 0 ? 
                     (<div> 
@@ -175,13 +175,15 @@ class Books extends Component {
                         ) : (
                             <p>No books found.</p>
                         )}
-                    <Paginate
-                    itemsPerPage={itemsPerPage}
-                    totalItems={books.length}
-                    paginate={this.paginate}
-                    currentPage={currentPage} 
-                    />
-                </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px', marginBottom: '-230px' }}>
+                        <Paginate
+                        itemsPerPage={itemsPerPage}
+                        totalItems={books.length}
+                        paginate={this.paginate}
+                        currentPage={currentPage} 
+                        />
+                    </div>
                 <Footer />
             </div>
         )

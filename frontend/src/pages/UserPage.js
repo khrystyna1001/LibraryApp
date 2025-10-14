@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
-import { updateUser } from '../api';
+import { updateItem } from '../api';
 import { AuthContext } from '../utils/authContext';
 import Footer from '../components/Footer';
 import '../App.css'
@@ -81,17 +81,17 @@ class UserPage extends Component {
 
         try {
             const token = localStorage.getItem('token') || 'mock_token_123';
-            const user_password = null; 
             
-            const roleToSend = localRole.charAt(0).toUpperCase() + localRole.slice(1);
+            const updatedUser = {
+                username: localUsername,
+                groups: [localRole.toLocaleLowerCase()],
+            }
             
-            const response = await updateUser(
-                "user", 
+            const response = await updateItem(
+                "users", 
                 localId, 
                 token, 
-                localUsername, 
-                roleToSend, 
-                user_password
+                updatedUser
             );
 
             if (response) {
@@ -110,7 +110,7 @@ class UserPage extends Component {
     }
 
     render() {
-        const { localUsername, localRole, isUpdating, statusMessage, localId } = this.state;
+        const { localUsername, localRole, isUpdating, statusMessage, error } = this.state;
         const { user } = this.context;
         const userRoleDisplay = localRole.charAt(0).toUpperCase() + localRole.slice(1);
         const isAdmin = user.role === "admin"; 
@@ -132,8 +132,8 @@ class UserPage extends Component {
                     {statusMessage && (
                         <Message 
                             size='small'
-                            {...(statusMessage.type === 'error' ? { negative: true } : { positive: true })}
-                            header={statusMessage.type === 'error' ? 'Error' : 'Success'}
+                            {...(statusMessage.type === error ? { negative: true } : { positive: true })}
+                            header={statusMessage.type === error ? 'Error' : 'Success'}
                             content={statusMessage.text}
                         />
                     )}
