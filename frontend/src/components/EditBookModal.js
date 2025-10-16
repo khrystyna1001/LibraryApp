@@ -150,11 +150,6 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
             console.log('API Response:', response);
             
             if (response) {
-                const bookToSave = {
-                    ...updatedBook,
-                    author: formData.author
-                };
-
                 onSave(updatedBook);
                 onClose();
             }

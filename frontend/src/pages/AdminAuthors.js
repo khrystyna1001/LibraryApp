@@ -36,7 +36,8 @@ class AdminAuthors extends Component {
             isDeleteModalOpen: false,
             currentAuthorToDelete: null,
             currentAuthorToEdit: null,
-            isSaving: false
+            isSaving: false,
+            bookLookup: {}
         };
     }
 
@@ -85,7 +86,7 @@ class AdminAuthors extends Component {
             }));
     
         } catch (error) {
-            console.error("Failed to save book via API:", error);
+            console.error("Failed to save author via API:", error);
             this.setState({ isSaving: false }); 
         }
     };
@@ -101,13 +102,26 @@ class AdminAuthors extends Component {
         try {
 
             const token = localStorage.getItem('token');
-            const fetchedAuthors = await getItems('authors', token);
+
+            const [fetchedAuthors, fetchedBooks] = await Promise.all([
+                getItems('authors', token),
+                getItems('books', token)
+            ]);
+            
+            const bookLookup = {};
+            if (Array.isArray(fetchedBooks)) {
+                fetchedBooks.forEach(book => {
+                    bookLookup[book.id] = book;
+                });
+            }
 
             if (Array.isArray(fetchedAuthors)) {
                 this.setState({
                 authors: fetchedAuthors,
+                bookLookup: bookLookup,
                 loading: false,
             });
+
             } else {
                 console.error("API did not return an array for authors:", fetchedAuthors);
                 this.setState({
@@ -163,7 +177,8 @@ class AdminAuthors extends Component {
             currentAuthorToEdit,
             isDeleteModalOpen,
             currentAuthorToDelete, 
-            isSaving
+            isSaving,
+            bookLookup
         } = this.state;
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
@@ -221,11 +236,19 @@ class AdminAuthors extends Component {
                                             <TableCell>
                                             {author.books_written && author.books_written.length > 0 ? (
                                                 <List>
-                                                    {author.books_written.map(book => (
-                                                        <ListItem key={book.id} onClick={() => this.handleBookButton(book.id)}>
-                                                            {book.title} (Published at: {book.published_date})
-                                                        </ListItem>
-                                                    ))}
+                                                    {author.books_written.map(bookId => {
+                                                        const book = bookLookup[bookId]
+            
+                                                        if (!book) {
+                                                            return <ListItem key={bookId} style={{ color: 'red' }}>Book ID {bookId} (Data Missing)</ListItem>;
+                                                        }
+                                            
+                                                        return (
+                                                            <ListItem key={bookId} onClick={() => this.handleBookButton(bookId)}>
+                                                                {book.title} (Published at: {book.published_date})
+                                                            </ListItem>
+                                                        )
+                                                    })}
                                                 </List>
                                             ) : (
                                                 <span>No data</span>
@@ -254,7 +277,7 @@ class AdminAuthors extends Component {
                 )}
                 {currentAuthorToEdit && (
                     <EditAuthorModal
-                        currentBook={currentAuthorToEdit}
+                        currentAuthor={currentAuthorToEdit}
                         isOpen={isEditModalOpen}
                         onClose={this.handleCloseModal}
                         onSave={this.handleSaveAuthorEdit}

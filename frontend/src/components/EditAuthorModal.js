@@ -13,7 +13,6 @@ import {
     Dropdown,
     Label,
     Divider,
-    FormTextArea,
     Header
 } from 'semantic-ui-react';
 
@@ -35,14 +34,14 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
         
         if (newBookObject) {
             setFormData((prevFormData) => {
-                const isBookAlreadyAdded = prevFormData.books_written.some(
+                const isBookAlreadyAdded = prevFormData.books_written.find(
                     (book) => book.id === newBookObject.id
                 );
 
                 if (!isBookAlreadyAdded) {
                     return {
                         ...prevFormData,
-                        author: [...prevFormData.books_written, newBookObject],
+                        books_written: [...prevFormData.books_written, newBookObject],
                     };
                 }
 
@@ -54,8 +53,8 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
     }
     
     /**
-     * Handles removing an author from the author list.
-     * @param {string} bookIdToRemove - The ID of the author to remove.
+     * Handles removing a book from the book list.
+     * @param {string} bookIdToRemove - The ID of the book to remove.
      */
     const handleRemoveBook = (bookIdToRemove) => {
         setFormData((prevFormData) => ({
@@ -103,7 +102,9 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
     };
 
     const handleFormSubmit = async () => {
-        const bookIds = formData.books_written.map(book => book.id);
+        const bookIds = formData.books_written
+        .filter(book => book && book.id !== null && book.id !== undefined)
+        .map(book => book.id);
 
         const updatedAuthor = {
             ...currentAuthor, 
@@ -127,12 +128,7 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
             console.log('API Response:', response);
             
             if (response) {
-                const authorToSave = {
-                    ...updatedAuthor,
-                    books_written: formData.books_written
-                };
-
-                onSave(authorToSave);
+                onSave(updatedAuthor);
                 onClose();
             }
         } catch (e) {
@@ -143,6 +139,20 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
     useEffect(() => {
 
         if (currentAuthor) {
+
+            const safeBooksWritten = Array.isArray(currentAuthor.books_written) 
+                ? currentAuthor.books_written 
+                : [];
+
+                const booksAsObjects = safeBooksWritten
+                .map(bookIdOrObject => {
+                    const id = typeof bookIdOrObject === 'object' 
+                        ? bookIdOrObject.id 
+                        : bookIdOrObject;
+                        
+                    return fetchedBooks.find(book => book.id === id);
+                })
+                .filter(book => book);
             
             setFormData({
                 id: currentAuthor.id,
@@ -150,10 +160,10 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
                 last_name: currentAuthor.last_name,
                 role: currentAuthor.role,
                 full_name: currentAuthor.full_name,
-                books_written: Array.isArray(currentAuthor.books_written ? currentAuthor.books_written : [currentAuthor.books_written].filter(Boolean))
+                books_written: booksAsObjects
             });
         }
-    }, [currentAuthor]);
+    }, [currentAuthor, fetchedBooks]);
 
     useEffect(() => {
         if (isOpen) { 
@@ -195,18 +205,22 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
                             First Name
                         </label>
                         <Input
-                            name='first name'
+                            name='first_name'
                             type='text'
                             onChange={handleInputChange} 
                             value={formData.first_name || ''} 
                             disabled={!isAdmin}
-                            icon='user'
-                            iconPosition='left'
                             placeholder='Enter first name title'
                             fluid
                         />
+                    </FormField>
+
+                    <FormField required>
+                        <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
+                            Last Name
+                        </label>
                         <Input
-                            name='last name'
+                            name='last_name'
                             type='text'
                             onChange={handleInputChange} 
                             value={formData.last_name || ''} 
@@ -218,27 +232,24 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
 
                     <FormField>
                         <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
-                            Description
+                            Role
                         </label>
-                        <FormTextArea
+                        <Input
                             name='role'
                             type='text'
-                            onChange={handleInputChange} 
                             value={formData.role || ''} 
                             disabled
-                            iconPosition='left'
                             fluid
                         />
                     </FormField>
 
-                    <FormField required>
+                    <FormField>
                         <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600' }}>
                             Full Name
                         </label>
                         <Input
-                            name='full name'
+                            name='full_name'
                             type='text'
-                            onChange={handleInputChange} 
                             value={formData.full_name || ''} 
                             disabled
                             fluid
@@ -269,7 +280,7 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
                     </FormField>
                     <FormField>
                         <label style={{ fontSize: '0.9em', color: '#666', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                            Current Books ({formData.books_written.length})
+                            Current Books ({formData.books_written.length || '0'})
                         </label>
                         <div style={{ 
                             display: 'flex', 
