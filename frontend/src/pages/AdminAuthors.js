@@ -49,14 +49,14 @@ class AdminAuthors extends Component {
         this.props.router.navigate(`/authors/${authorId}`);
     }
 
-    handleEditAuthor = (author) => {
+    handleOpenEditModal = (author) => {
         this.setState({
             isEditModalOpen: true,
             currentAuthorToEdit: author,
         });
     };
 
-    handleCloseModal = () => {
+    handleCloseEditModal = () => {
         this.setState({
             isEditModalOpen: false,
             currentAuthorToEdit: null,
@@ -89,6 +89,28 @@ class AdminAuthors extends Component {
             console.error("Failed to save author via API:", error);
             this.setState({ isSaving: false }); 
         }
+    };
+    
+    handleDeleteAuthor = (deletedAuthorId) => {
+        this.setState(prevState => ({
+            authors: prevState.authors.filter(author => author.id !== deletedAuthorId),
+            isDeleteModalOpen: false, 
+            currentAuthorToDelete: null,
+        }));
+    };
+
+    handleOpenDeleteModal = (author) => {
+        this.setState({
+            isDeleteModalOpen: true,
+            currentAuthorToDelete: author,
+        });
+    };
+
+    handleCloseDeleteModal = () => {
+        this.setState({
+            isDeleteModalOpen: false,
+            currentAuthorToDelete: null,
+        });
     };
 
     async componentDidMount() {
@@ -139,27 +161,7 @@ class AdminAuthors extends Component {
        }
     }
 
-    handleDeleteAuthor = (deletedAuthorId) => {
-        this.setState(prevState => ({
-            authors: prevState.authors.filter(author => author.id !== deletedAuthorId),
-            isDeleteModalOpen: false, 
-            currentAuthorToDelete: null,
-        }));
-    };
-
-    handleOpenDeleteModal = (author) => {
-        this.setState({
-            isDeleteModalOpen: true,
-            currentAuthorToDelete: author,
-        });
-    };
-
-    handleCloseDeleteModal = () => {
-        this.setState({
-            isDeleteModalOpen: false,
-            currentBookToDelete: null,
-        });
-    };
+    
 
     paginate = (pageNumber) => {
         this.setState({
@@ -255,7 +257,7 @@ class AdminAuthors extends Component {
                                             )}
                                             </TableCell>
                                             <TableCell>
-                                                <Button icon='edit' onClick={() => this.handleEditAuthor(author)}>
+                                                <Button icon='edit' onClick={() => this.handleOpenEditModal(author)}>
                                                 </Button>
                                                 <Button icon='trash' onClick={() => this.handleOpenDeleteModal(author)}>
                                                 </Button>
@@ -279,7 +281,7 @@ class AdminAuthors extends Component {
                     <EditAuthorModal
                         currentAuthor={currentAuthorToEdit}
                         isOpen={isEditModalOpen}
-                        onClose={this.handleCloseModal}
+                        onClose={this.handleCloseEditModal}
                         onSave={this.handleSaveAuthorEdit}
                         isSaving={isSaving}
                     />

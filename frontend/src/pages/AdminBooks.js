@@ -40,14 +40,14 @@ class AdminBooks extends Component {
         };
     }
 
-    handleEditBook = (book) => {
+    handleOpenEditModal = (book) => {
         this.setState({
             isEditModalOpen: true,
             currentBookToEdit: book,
         });
     };
 
-    handleCloseModal = () => {
+    handleCloseEditModal = () => {
         this.setState({
             isEditModalOpen: false,
             currentBookToEdit: null,
@@ -230,7 +230,7 @@ class AdminBooks extends Component {
                                             <TableCell>{book.published_date}</TableCell> 
                                             <TableCell>{book.is_available ? "Available" : "Not Available"}</TableCell>
                                             <TableCell>
-                                                <Button icon="edit" onClick={() => this.handleEditBook(book)}/>
+                                                <Button icon="edit" onClick={() => this.handleOpenEditModal(book)}/>
                                                 <Button icon="trash" onClick={() => this.handleOpenDeleteModal(book)}/>
                                             </TableCell>
                                         </TableRow>
@@ -252,7 +252,7 @@ class AdminBooks extends Component {
                     <EditBookModal
                         currentBook={currentBookToEdit}
                         isOpen={isEditModalOpen}
-                        onClose={this.handleCloseModal}
+                        onClose={this.handleCloseEditModal}
                         onSave={this.handleSaveBookEdit}
                         isSaving={isSaving}
                     />

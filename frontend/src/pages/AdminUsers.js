@@ -48,14 +48,14 @@ class AdminUsers extends Component {
         return t;
     }
 
-    handleEditUser = (user) => {
+    handleOpenEditModal = (user) => {
         this.setState({
             isEditModalOpen: true,
             currentUserToEdit: user,
         });
     };
 
-    handleCloseModal = () => {
+    handleCloseEditModal = () => {
         this.setState({
             isEditModalOpen: false,
             currentUserToEdit: null,
@@ -221,7 +221,7 @@ class AdminUsers extends Component {
                                             <TableCell>
                                                 {this.handleTokenFind(tokens, user)}</TableCell>
                                             <TableCell>
-                                                <Button icon='edit' onClick={() => this.handleEditUser(user)} />
+                                                <Button icon='edit' onClick={() => this.handleOpenEditModal(user)} />
                                                 <Button icon='trash' onClick={() => this.handleOpenDeleteModal(user)} />
                                             </TableCell>
                                         </TableRow>
@@ -244,7 +244,7 @@ class AdminUsers extends Component {
                     <UserEditModal 
                         currentUser={currentUserToEdit}
                         isOpen={isEditModalOpen}
-                        onClose={this.handleCloseModal}
+                        onClose={this.handleCloseEditModal}
                         onSave={this.handleSaveUserEdit}
                         isSaving={isSaving}
                     />

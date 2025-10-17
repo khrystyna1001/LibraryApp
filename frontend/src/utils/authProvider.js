@@ -36,6 +36,7 @@ const AuthProvider = ({ children, props }) => {
             }
         } else {
                 setLoading(false);
+                return;
         }
       };
   
@@ -53,6 +54,8 @@ const AuthProvider = ({ children, props }) => {
       
       if (token) {
           localStorage.setItem('token', token);
+      } else {
+        props.router.navigate('/login/')
       }
       
       setAuthenticatedUser(userData);

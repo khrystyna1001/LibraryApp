@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import Paginate from '../components/Pagination';
 import Footer from '../components/Footer';
-import { getItems } from '../api';
+import { getItems, updateItem } from '../api';
 import {
     Card,
     CardContent,
@@ -17,6 +17,8 @@ import {
     ButtonGroup
 } from 'semantic-ui-react';
 import { AuthContext } from '../utils/authContext';
+import EditBookModal from '../components/EditBookModal';
+import DeleteModal from '../components/DeleteModal';
 
 import withRouter from '../utils/withRouter';
 
@@ -31,6 +33,11 @@ class Books extends Component {
           itemsPerPage: 8,
           error: null,
           loading: true,
+          isEditModalOpen: false,
+          isDeleteModalOpen: false,
+          currentBookToEdit: null,
+          currentBookToDelete: null,
+          isSaving: false,
         };
     }
 
@@ -38,12 +45,68 @@ class Books extends Component {
         this.props.router.navigate(`/books/${bookID}`);
     }
 
-    handleEditButton = (bookID) => {
-        console.log(`Edit button clicked for book ID: ${bookID}`);
+    handleOpenEditModal = (book) => {
+        this.setState({
+            isEditModalOpen: true,
+            currentBookToEdit: book
+        })
     }
 
-    handleDeleteButton = (bookID) => {
-        console.log(`Delete button clicked for book ID: ${bookID}`);
+    handleCloseEditModal = () => {
+        this.setState({
+            isEditModalOpen: false,
+            currentBookToEdit: null
+        })
+    }
+
+    handleSaveBookEdit = async (updatedBook) => {
+        this.setState({ isSaving: true });
+    
+        const token = localStorage.getItem('token') || 'mock-token'; 
+        const { id } = updatedBook;
+        
+        try {
+            const response = await updateItem('books', id, token, updatedBook);
+    
+            this.setState(prevState => ({
+                books: prevState.books.map(book => {
+                    if (!book) return book; 
+                    
+                    console.log(response)
+                    
+                    return book.id === response.id ? response : book;
+                }),
+                isSaving: false,
+                isEditModalOpen: false,
+                currentBookToEdit: null,
+            }));
+    
+        } catch (error) {
+            console.error("Failed to save book via API:", error);
+            this.setState({ isSaving: false }); 
+        }
+    };
+
+    handleDeleteBook = (deletedBookId) => {
+        this.setState(prevState => ({
+            books: prevState.books.filter(book => book.id !== deletedBookId),
+            isDeleteModalOpen: false, 
+            currentBookToDelete: null,
+        }));
+    };
+    
+    handleOpenDeleteModal = (book) => {
+        this.setState({
+            isDeleteModalOpen: true,
+            currentBookToDelete: book
+        })
+    }
+
+    handleCloseDeleteModal = () => {
+        this.setState({
+            isDeleteModalOpen: false,
+            currentBookToDelete: null
+        })
     }
 
     paginate = (pageNumber) => {
@@ -88,7 +151,16 @@ class Books extends Component {
 }
 
     render() {
-        const { books, error, loading, currentPage, itemsPerPage } = this.state;
+        const { books, 
+            error, 
+            loading, 
+            currentPage, 
+            itemsPerPage,
+            isEditModalOpen,
+            isDeleteModalOpen, 
+            currentBookToEdit,
+            currentBookToDelete, 
+            isSaving } = this.state;
         const { user } = this.context; 
         const isAdmin = user.role === 'admin'
 
@@ -100,7 +172,7 @@ class Books extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card>
+                    <Card style={{ margin: '50px' }}>
                       <CardContent>
                         <CardDescription>
                             Loading books...
@@ -115,7 +187,7 @@ class Books extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card>
+                    <Card style={{ margin: '50px' }}>
                       <CardContent>
                         <CardDescription>Error: {error.message}</CardDescription>
                         <Button onClick={this.handleAuthorListButton}>Go back to book list</Button>
@@ -158,10 +230,10 @@ class Books extends Component {
                                 {isAdmin && (
                                     <CardContent extra>
                                         <ButtonGroup widths='2'>
-                                            <Button onClick={() => this.handleEditButton(book.id)}>
+                                            <Button onClick={() => this.handleOpenEditModal(book)}>
                                                 Edit Book
                                             </Button>
-                                            <Button onClick={() => this.handleDeleteButton(book.id)}>
+                                            <Button onClick={() => this.handleOpenDeleteModal(book)}>
                                                 Delete Book
                                             </Button>
                                         </ButtonGroup>
@@ -184,6 +256,25 @@ class Books extends Component {
                         currentPage={currentPage} 
                         />
                     </div>
+                    {currentBookToEdit && (
+                    <EditBookModal
+                        currentBook={currentBookToEdit}
+                        isOpen={isEditModalOpen}
+                        onClose={this.handleCloseEditModal}
+                        onSave={this.handleSaveBookEdit}
+                        isSaving={isSaving}
+                        />
+                    )}
+                    {currentBookToDelete && (
+                        <DeleteModal 
+                            item={currentBookToDelete}
+                            itemName={currentBookToDelete.title}
+                            apiItemName={'books'}
+                            isOpen={isDeleteModalOpen}
+                            onClose={this.handleCloseDeleteModal}
+                            onDelete={this.handleDeleteBook} 
+                        />
+                    )}
                 <Footer />
             </div>
         )

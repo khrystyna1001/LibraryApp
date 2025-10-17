@@ -178,7 +178,7 @@ class User extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card>
+                    <Card style={{ margin: '50px' }}>
                       <CardContent>
                         <CardDescription>
                             Loading user info...
@@ -193,7 +193,7 @@ class User extends Component {
             return (
                 <React.Fragment>
                     <NavBar />
-                    <Card>
+                    <Card style={{ margin: '50px' }}>
                       <CardContent>
                         <CardDescription>Error: {error.message}</CardDescription>
                         <Button onClick={this.handleAuthorListButton}>Go back to user list</Button>
