@@ -4,6 +4,7 @@ import AccessControl from './AccessControl';
 import withRouter from '../utils/withRouter';
 import { useAuth } from '../utils/authContext';
 import AdminNavbar from './Dashboard';
+import { getItems } from '../api';
 import { Menu, 
     Container, 
     Dropdown, 
@@ -15,6 +16,7 @@ import { Menu,
 function NavBar(props) {
 
     const [dropdownTitle, setDropdownTitle] = useState('');
+    const [searchRequest, setSearchRequest] = useState('');
     const location = useLocation();
     const { user, logout } = useAuth();
 
@@ -27,7 +29,42 @@ function NavBar(props) {
         } else {
             setDropdownTitle('Books');
         }
+
+        const fetchData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+
+                const [authors, books, users] = await Promise.all([
+                    getItems('authors', token),
+                    getItems('books', token),
+                    getItems('users', token),
+                ]);
+            } catch (e) {
+                console.log("Error when fetching API data")
+            }
+        }
+
+        fetchData();
     }, [location.pathname]);
+
+    const handleInputValue = (e) => {
+        setSearchRequest(e.target.value)
+    }
+    
+    const handleInputSearch = () => {
+        if (searchRequest) {
+            try {
+                //const userResponse = users.find(user => user.username === searchRequest);
+                // const authorResponse = authors.find(author => author.full_name === searchRequest);
+                // const bookResponse = books.find(book => book.title === searchRequest);
+
+                // console.log(userResponse)
+            } catch (e) {
+                console.log("No Search Request was sent")
+            }
+        }
+        
+    }
 
     return (
         <div>
@@ -50,7 +87,8 @@ function NavBar(props) {
 
                 <MenuMenu position='right'>
                     <Menu.Item>
-                    <Input icon='search' placeholder='Search...' />
+                        <Input icon='search' placeholder='Search...' onChange={handleInputValue} value={searchRequest} />
+                        <Button onClick={handleInputSearch}>Search</Button>
                     </Menu.Item>
                     <Menu.Item>
                         <Button

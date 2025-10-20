@@ -8,11 +8,12 @@ import {
     CardContent,
     CardDescription,
     Button,
+    ButtonGroup,
     CardHeader,
     Grid,
     GridColumn,
     List,
-    ListItem
+    ListItem,
 } from 'semantic-ui-react';
 import { getItems, updateItem } from '../api';
 import { AuthContext } from '../utils/authContext';
@@ -246,19 +247,21 @@ class Authors extends Component {
                                                     )}
                                                     </CardContent>
                                             </CardContent>
-                                            <Button onClick={() => this.handleInfoButton(author.id)}>
-                                                View Info
-                                            </Button>
-                                            <div className='two ui buttons'>
-                                            {isAdmin && (<>
-                                                <Button onClick={() => this.handleOpenEditModal(author)}>
-                                                    Edit Author
-                                                </Button>
-                                                <Button onClick={() => this.handleOpenDeleteModal(author)}>
-                                                    Delete Author
-                                                </Button></>
+                                            <CardContent extra>
+                                                <Button fluid onClick={() => this.handleInfoButton(author.id)}>View Info</Button>
+                                            </CardContent>
+                                            {isAdmin && (
+                                                <CardContent extra>
+                                                    <ButtonGroup fluid widths='1'>
+                                                        <Button onClick={() => this.handleOpenEditModal(author)}>
+                                                            Edit Author
+                                                        </Button>
+                                                        <Button onClick={() => this.handleOpenDeleteModal(author)}>
+                                                            Delete Author
+                                                        </Button>
+                                                    </ButtonGroup>
+                                                </CardContent>
                                             )}
-                                            </div>
                                         </Card>
                                         
                                     </GridColumn>
