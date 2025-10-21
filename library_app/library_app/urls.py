@@ -23,10 +23,8 @@ from app import views
 urlpatterns = [
     path("", include('app.urls')),
     
-    path("login/", views.login, name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("social-auth/", include("social_django.urls", namespace="social")),
-    path("home/", views.home, name="home"),
 
     path("books/", include('books.urls')),
     path("authors/", include('authors.urls')),
