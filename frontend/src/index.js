@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import AuthProvider from './utils/authProvider';
+import { SearchProvider } from './utils/searchContext';
 
 import 'semantic-ui-css/semantic.min.css'
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -12,11 +13,13 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <AuthProvider>
-    <BrowserRouter>
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    </BrowserRouter>
+    <SearchProvider>
+      <BrowserRouter>
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      </BrowserRouter>
+    </SearchProvider>
   </AuthProvider>
 );
 

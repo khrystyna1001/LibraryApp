@@ -3,8 +3,9 @@ import { useLocation } from 'react-router-dom';
 import AccessControl from './AccessControl';
 import withRouter from '../utils/withRouter';
 import { useAuth } from '../utils/authContext';
+import { useSearch } from '../utils/searchContext';
 import AdminNavbar from './Dashboard';
-import { getItems } from '../api';
+import { getItems, searchItems } from '../api';
 import { Menu, 
     Container, 
     Dropdown, 
@@ -19,6 +20,7 @@ function NavBar(props) {
     const [searchRequest, setSearchRequest] = useState('');
     const location = useLocation();
     const { user, logout } = useAuth();
+    const { setSearchResponse } = useSearch();
 
     useEffect(() => {
 
@@ -29,39 +31,39 @@ function NavBar(props) {
         } else {
             setDropdownTitle('Books');
         }
-
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem('token');
-
-                const [authors, books, users] = await Promise.all([
-                    getItems('authors', token),
-                    getItems('books', token),
-                    getItems('users', token),
-                ]);
-            } catch (e) {
-                console.log("Error when fetching API data")
-            }
-        }
-
-        fetchData();
     }, [location.pathname]);
 
     const handleInputValue = (e) => {
         setSearchRequest(e.target.value)
     }
     
-    const handleInputSearch = () => {
+    const handleInputSearch = async () => {
         if (searchRequest) {
             try {
-                //const userResponse = users.find(user => user.username === searchRequest);
-                // const authorResponse = authors.find(author => author.full_name === searchRequest);
-                // const bookResponse = books.find(book => book.title === searchRequest);
+                const token = localStorage.getItem('token');
+                const [fetchedAuthors, fetchedBooks, fetchedUsers] = await Promise.all([
+                    searchItems(searchRequest, 'authors', token),
+                    searchItems(searchRequest, 'books', token),
+                    searchItems(searchRequest, 'users')
+                ]);
 
-                // console.log(userResponse)
+                console.log(fetchedAuthors, fetchedBooks, fetchedUsers)
+
+                const responseData = {
+                    authors: fetchedAuthors,
+                    books: fetchedBooks,
+                    users: fetchedUsers,
+                    query: searchRequest
+                };
+
+                localStorage.setItem('lastSearchResponse', JSON.stringify(responseData));
+                setSearchResponse(responseData);
+
+                props.router.navigate(`/search?query=${searchRequest}`);
             } catch (e) {
-                console.log("No Search Request was sent")
+                console.log("Failed to send Search Request:", e)
             }
+            
         }
         
     }

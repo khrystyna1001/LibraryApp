@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { data } from 'react-router-dom';
 
 const API_URL = "http://localhost:8000"
 
@@ -45,7 +44,10 @@ async function getItem(item, ID, token) {
         const response = await axios.get(`${API_URL}/${item}/${ID}/`, {
             headers: requestHeaders
         });
-        return response.data;
+
+        if (response.status === 200) {
+            return response.data;
+        }
 
     } catch (error) {
         console.error(`Failed to fetch ${item}:`, error);
@@ -63,7 +65,10 @@ async function getItems(item, token) {
             headers: requestHeaders
         });
         
-        return response.data;
+        if (response.status === 200) {
+            return response.data;
+        }
+
     } catch (error) {
         console.error(`Failed to fetch ${item}s`)
     }
@@ -91,7 +96,10 @@ async function updateUser(item, ID, token, user_name, user_role, user_password) 
         {
             headers: requestHeaders
         });
-        return response.data;
+
+        if (response) {
+            return response.data;
+        }
 
     } catch (error) {
         console.error(`Failed to fetch ${item}:`, error);
@@ -112,7 +120,10 @@ async function updateItem(item, ID, token, itemData) {
         {
             headers: requestHeaders
         });
-        return response.data;
+
+        if (response) {
+            return response.data;
+        }
 
     } catch (error) {
         console.error(`Failed to fetch ${item}:`, error);
@@ -128,12 +139,33 @@ async function deleteItem(item, ID, token) {
             "Authorization": `Token ${token}`
         }
 
-        const response = await axios.delete(`${API_URL}/${item}/${ID}/`)
-        return response.data;
+        const response = await axios.delete(`${API_URL}/${item}/${ID}/`, {headers: requestHeaders})
+        
+        if (response) {
+            return response.data;
+        }
     } catch (error) {
         console.error(`Failed to delete ${item} with ID of ${ID}:`, error);
         throw error;
     }
 }
 
-export { getItem, getItems, getUserData, updateUser, updateItem, deleteItem };
+async function searchItems(value, item, token) {
+    try {
+        const requestHeaders = {
+            "Content-Type": "application/json",
+            "Authorization": `Token ${token}`
+        }
+
+        const response = await axios.get(`${API_URL}/${item}/?search=${value}`, {headers: requestHeaders});
+
+        if (response.status === 200) {
+            return response.data;
+        }
+    } catch (error) {
+        console.error(`Failed to find item:`, error);
+        throw error;
+    }
+}
+
+export { getItem, getItems, getUserData, updateUser, updateItem, deleteItem, searchItems };
