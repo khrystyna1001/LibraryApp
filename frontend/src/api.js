@@ -74,7 +74,7 @@ async function getItems(item, token) {
     }
 }
 
-async function updateUser(item, ID, token, user_name, user_role, user_password) {
+async function createItem(item, token, itemData) {
     try {
 
         const requestHeaders = {
@@ -82,17 +82,8 @@ async function updateUser(item, ID, token, user_name, user_role, user_password) 
             "Authorization": `Token ${token}`
         }
 
-        const data = {
-            "username": user_name,
-            "groups": [user_role]
-        };
-
-        if (user_password && user_password.trim() !== "") {
-            data.password = user_password;
-        }
-
-        const response = await axios.patch(`${API_URL}/${item}/${ID}/`, 
-        data,
+        const response = await axios.post(`${API_URL}/${item}/`,
+            itemData,
         {
             headers: requestHeaders
         });
@@ -168,4 +159,4 @@ async function searchItems(value, item, token) {
     }
 }
 
-export { getItem, getItems, getUserData, updateUser, updateItem, deleteItem, searchItems };
+export { getItem, getItems, createItem, getUserData, updateItem, deleteItem, searchItems };

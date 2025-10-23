@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import NavBar from '../components/Navigation';
 import Paginate from '../components/Pagination';
 import Footer from '../components/Footer';
-import { getItems, updateItem } from '../api';
+import { getItems, updateItem, createItem } from '../api';
 import {
     Card,
     CardContent,
@@ -38,6 +38,7 @@ class Books extends Component {
           currentBookToEdit: null,
           currentBookToDelete: null,
           isSaving: false,
+          isAdding: false,
         };
     }
 
@@ -45,18 +46,51 @@ class Books extends Component {
         this.props.router.navigate(`/books/${bookID}`);
     }
 
+    handleBookListButton = () => {
+        this.props.router.navigate("/books/");
+    }
+
     handleOpenEditModal = (book) => {
         this.setState({
             isEditModalOpen: true,
-            currentBookToEdit: book
+            currentBookToEdit: book,
+            isAdding: !book,
         })
     }
 
     handleCloseEditModal = () => {
         this.setState({
             isEditModalOpen: false,
-            currentBookToEdit: null
+            currentBookToEdit: null,
+            isAdding: false,
         })
+    }
+
+    handleAddBook = async (newBook) => {
+        this.setState({ isSaving: true });
+    
+        const token = localStorage.getItem('token') || 'mock-token';
+        
+        try {
+            const response = await createItem('books', token, newBook);
+            this.setState(prevState => ({
+                books: prevState.books.map(book => {
+                    if (!book) return book; 
+                    
+                    console.log(response)
+                    
+                    return book.id === response.id ? response : book;
+                }),
+                isSaving: false,
+                isEditModalOpen: false,
+                currentBookToEdit: null,
+                isAdding: false,
+            }));
+    
+        } catch (error) {
+            console.error("Failed to create book via API:", error);
+            this.setState({ isSaving: false }); 
+        }
     }
 
     handleSaveBookEdit = async (updatedBook) => {
@@ -79,6 +113,7 @@ class Books extends Component {
                 isSaving: false,
                 isEditModalOpen: false,
                 currentBookToEdit: null,
+                isAdding: false,
             }));
     
         } catch (error) {
@@ -160,7 +195,9 @@ class Books extends Component {
             isDeleteModalOpen, 
             currentBookToEdit,
             currentBookToDelete, 
-            isSaving } = this.state;
+            isSaving,
+            isAdding,
+            } = this.state;
         const { user } = this.context; 
         const isAdmin = user.role === 'admin'
 
@@ -190,7 +227,7 @@ class Books extends Component {
                     <Card style={{ margin: '50px' }}>
                       <CardContent>
                         <CardDescription>Error: {error.message}</CardDescription>
-                        <Button onClick={this.handleAuthorListButton}>Go back to book list</Button>
+                        <Button onClick={this.handleBookListButton}>Go back to book list</Button>
                       </CardContent>
                     </Card>
                 </React.Fragment>
@@ -199,8 +236,14 @@ class Books extends Component {
         return (
             <div>
                 <NavBar />
+                
                 <div style={{ margin: '50px' }}>
                     <h1>Book List</h1>
+                    {isAdmin && (
+                        <Button color='teal' style={{ marginBottom: '10px' }} onClick={() => this.handleOpenEditModal()}>
+                            Add Book
+                        </Button>
+                    )}
                     { books.length > 0 ? 
                     (<div> 
                     <Grid columns={4}>
@@ -261,8 +304,9 @@ class Books extends Component {
                         currentBook={currentBookToEdit}
                         isOpen={isEditModalOpen}
                         onClose={this.handleCloseEditModal}
-                        onSave={this.handleSaveBookEdit}
+                        onSave={isAdding ? this.handleAddBook : this.handleSaveBookEdit}
                         isSaving={isSaving}
+                        isAdding={isAdding}
                         />
                     )}
                     {currentBookToDelete && (

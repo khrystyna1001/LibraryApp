@@ -218,6 +218,9 @@ class Authors extends Component {
                 <NavBar />
                     <div style={{ margin: '55px', height: '40vh' }}>
                         <h1>Author  List</h1>
+                        {isAdmin && (
+                            <Button color='teal' style={{ marginBottom: '10px' }}>Add Author</Button>
+                        )}
                         { authors.length > 0 ? (
                             <Grid columns={4}>
                                 {currentAuthors.map(author => (

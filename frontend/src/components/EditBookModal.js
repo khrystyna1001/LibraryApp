@@ -20,15 +20,24 @@ import {
 } from 'semantic-ui-react';
 
 import { useAuth } from '../utils/authContext';
-import { getItem, getItems, updateItem } from '../api';
+import { getItem, getItems } from '../api';
 
-const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
+const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAdding }) => {
 
     const { user } = useAuth();
     const [formData, setFormData] = useState(null);
     const [fetchedAuthors, setFetchedAuthors] = useState([])
     const currentRole = user.role && user.role ? user.role : 'visitor';
     const isAdmin = currentRole === 'admin';
+
+    const defaultBook = {
+        id: 'New Book - ID assigned on creation',
+        title: '',
+        description: '',
+        published_date: '',
+        is_available: true,
+        author: []
+    };
 
     const availabilityOptions = [
         { key: 'a', text: 'Available', value: true },
@@ -42,31 +51,6 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
             default: return 'red';
         }
     };
-
-    const handleAddAuthor = (selectedAuthorId) => {
-        const newAuthorObject = fetchedAuthors.find(
-            (a) => a.id === selectedAuthorId
-        );
-        
-        if (newAuthorObject) {
-            setFormData((prevFormData) => {
-                const isAuthorAlreadyAdded = prevFormData.author.some(
-                    (a) => a.id === newAuthorObject.id
-                );
-
-                if (!isAuthorAlreadyAdded) {
-                    return {
-                        ...prevFormData,
-                        author: [...prevFormData.author, newAuthorObject],
-                    };
-                }
-
-                return prevFormData;
-            });
-        } else {
-            console.error(`Author with ID ${selectedAuthorId} not found.`);
-        }
-    }
     
     /**
      * Handles removing an author from the author list.
@@ -125,53 +109,64 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
         });
     };
 
+    const handleAddAuthor = (selectedAuthorId) => {
+        const newAuthorObject = fetchedAuthors.find(
+            (a) => a.id === selectedAuthorId
+        );
+        
+        if (newAuthorObject) {
+            setFormData((prevFormData) => {
+                const isAuthorAlreadyAdded = prevFormData.author.some(
+                    (a) => a.id === newAuthorObject.id
+                );
+
+                if (!isAuthorAlreadyAdded) {
+                    return {
+                        ...prevFormData,
+                        author: [...prevFormData.author, newAuthorObject],
+                    };
+                }
+
+                return prevFormData;
+            });
+        } else {
+            console.error(`Author with ID ${selectedAuthorId} not found.`);
+        }
+    }
+
     const handleFormSubmit = async () => {
         const authorIds = formData.author.map(a => a.id);
 
         const updatedBook = {
-            ...currentBook, 
+            ...(isAdding ? {} : { id: formData.id }),
             title: formData.title,
             description: formData.description,
             published_date: formData.published_date,
             is_available: formData.is_available,
             author: authorIds,
         };
-
-        try {
-            const token = localStorage.getItem('token') || 'mock_token_123';
-            
-            const response = await updateItem(
-                "books", 
-                formData.id, 
-                token, 
-                updatedBook,
-            );
-            
-            console.log('API Response:', response);
-            
-            if (response) {
-                onSave(updatedBook);
-                onClose();
-            }
-        } catch (e) {
-            console.error("Failed to update book data:", e.response ? e.response.data : e);
-        }
+        onSave(updatedBook);
     };
 
     useEffect(() => {
 
-        if (currentBook) {
-            
-            setFormData({
-                id: currentBook.id,
-                title: currentBook.title,
-                description: currentBook.description,
-                published_date: currentBook.published_date,
-                is_available: currentBook.is_available,
-                author: Array.isArray(currentBook.author) ? currentBook.author : [currentBook.author].filter(Boolean)
-            });
+        if (isOpen) {
+            if (currentBook) {
+                setFormData({
+                    id: currentBook.id,
+                    title: currentBook.title || '',
+                    description: currentBook.description || '',
+                    published_date: currentBook.published_date || '',
+                    is_available: currentBook.is_available,
+                    author: Array.isArray(currentBook.author) ? currentBook.author : [currentBook.author].filter(Boolean)
+                });
+            } else {
+                setFormData(defaultBook);
+            }
+        } else {
+            setFormData(null);
         }
-    }, [currentBook]);
+    }, [currentBook, isOpen]);
 
     useEffect(() => {
         if (isOpen) { 
@@ -183,6 +178,9 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
         return null;
     };
 
+    const modalTitle = isAdding ? 'Add New Book' : 'Edit Book Profile';
+    const submitText = isAdding ? 'Create Book' : 'Save Changes';
+
     return (
         <Modal
             onClose={onClose}
@@ -190,8 +188,8 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
             size='small'
         >
             <ModalHeader>
-                <Icon name='user circle' />
-                Edit Book Profile
+                <Icon name={isAdding ? 'add' : 'edit'} /> 
+                {modalTitle}
             </ModalHeader>
             <ModalContent>
                 <Form>
@@ -394,7 +392,7 @@ const EditBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving }) => {
                     loading={isSaving}
                 >
                     <Icon name='check' />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
+                    {isSaving ? 'Saving...' : submitText}
                 </Button>
             </ModalActions>
         </Modal>

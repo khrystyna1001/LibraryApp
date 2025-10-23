@@ -15,7 +15,7 @@ import {
 } from 'semantic-ui-react'
 
 import withRouter from '../utils/withRouter';
-import { getItem, updateUser } from '../api';
+import { getItem, updateItem } from '../api';
 import { AuthContext } from '../utils/authContext';
 
 
@@ -136,14 +136,18 @@ class User extends Component {
             const currentRole = viewedUser.groups && viewedUser.groups.length > 0 ? viewedUser.groups[0] : 'visitor';
             
             const roleToSend = currentRole.charAt(0).toUpperCase() + currentRole.slice(1);
+
+            const dataToSend = {
+                username: viewedUser.username, 
+                role: roleToSend, 
+                password: user_password
+            }
             
-            const response = await updateUser(
-                "user", 
+            const response = await updateItem(
+                "users", 
                 viewedUser.id, 
                 token, 
-                viewedUser.username, 
-                roleToSend, 
-                user_password
+                dataToSend
             );
 
             if (response.status === 200) {
