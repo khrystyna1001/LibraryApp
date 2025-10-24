@@ -50,7 +50,10 @@ class UserSerializer(serializers.ModelSerializer):
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
-        fields = "__all__"
+        fields = ('key', 'user', 'created',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 class PermissionsSerializer(serializers.ModelSerializer):
     class Meta:

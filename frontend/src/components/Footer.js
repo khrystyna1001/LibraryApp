@@ -7,8 +7,8 @@ import { Segment,
 
 function Footer() {
     return(
-        <div style={{ width: '100%', bottom: '0' }}>
-            <Segment inverted vertical style={{ margin: '25em 0em 0em 0em', padding: '5em 0em' }}>
+        <div style={{ width: '100%' }}>
+            <Segment inverted vertical style={{ padding: '5em 0em' }}>
                 <Container textAlign='center'>
                     <List horizontal inverted divided link size='small'>
                     <List.Item as='a' href='#'>

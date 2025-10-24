@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { getItems, updateItem } from "../api";
+import { getItems, updateItem, createItem } from "../api";
 import NavBar from '../components/Navigation'
 import withRouter from "../utils/withRouter";
 import { Card, 
@@ -37,8 +37,45 @@ class AdminAuthors extends Component {
             currentAuthorToDelete: null,
             currentAuthorToEdit: null,
             isSaving: false,
+            isAdding: false,
             bookLookup: {}
         };
+    }
+
+    fetchAuthors = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const fetchedAuthors = await getItems('authors', token);
+            const fetchedBooks = await getItems('books', token);
+            
+            const bookLookup = {};
+            if (Array.isArray(fetchedBooks)) {
+                fetchedBooks.forEach(book => {
+                    bookLookup[book.id] = book;
+                });
+            }
+
+            if (Array.isArray(fetchedAuthors)) {
+                this.setState({
+                    authors: fetchedAuthors,
+                    loading: false,
+                    bookLookup: bookLookup
+                });
+            } else {
+                console.error("API did not return an array for authors:", fetchedAuthors);
+                this.setState({
+                    error: new Error("Invalid data format received from API."),
+                    loading: false,
+                });
+            }
+        } catch (error) {
+            console.error("Failed to fetch authors:", error);
+            this.setState({
+                error: error,
+                loading: false,
+                bookLookup: {}
+            });
+        }
     }
 
     handleBookButton = (bookID) => {
@@ -53,6 +90,7 @@ class AdminAuthors extends Component {
         this.setState({
             isEditModalOpen: true,
             currentAuthorToEdit: author,
+            isAdding: !author
         });
     };
 
@@ -60,18 +98,47 @@ class AdminAuthors extends Component {
         this.setState({
             isEditModalOpen: false,
             currentAuthorToEdit: null,
+            isAdding: false
         });
     };
 
-    handleSaveAuthorEdit = async (updatedAuthor) => {
+    handleAddAuthor = async (newAuthor) => {
         this.setState({ isSaving: true });
     
+        const token = localStorage.getItem('token') || 'mock-token';
+        
+        try {
+            const response = await createItem('authors', token, newAuthor);
+            await this.fetchAuthors();
+            this.setState(prevState => ({
+                authors: prevState.authors.map(author => {
+                    if (!author) return author; 
+                    
+                    console.log(response)
+                    
+                    return author.id === response.id ? response : author;
+                }),
+                isSaving: false,
+                isEditModalOpen: false,
+                currentBookToEdit: null,
+                isAdding: false,
+            }));
+    
+        } catch (error) {
+            console.error("Failed to create author via API:", error);
+            this.setState({ isSaving: false }); 
+        }
+    }
+
+    handleSaveAuthorEdit = async (updatedAuthor) => {
+        this.setState({ isSaving: true });
+        
         const token = localStorage.getItem('token') || 'mock-token'; 
         const { id } = updatedAuthor;
         
         try {
             const response = await updateItem('authors', id, token, updatedAuthor);
-    
+            await this.fetchAuthors();
             this.setState(prevState => ({
                 authors: prevState.authors.map(author => {
                     if (!author) return author; 
@@ -83,8 +150,9 @@ class AdminAuthors extends Component {
                 isSaving: false,
                 isEditModalOpen: false,
                 currentAuthorToEdit: null,
+                isAdding: false,
             }));
-    
+
         } catch (error) {
             console.error("Failed to save author via API:", error);
             this.setState({ isSaving: false }); 
@@ -120,48 +188,8 @@ class AdminAuthors extends Component {
              this.setState({ loading: false });
              return;
         }
-        
-        try {
-
-            const token = localStorage.getItem('token');
-
-            const [fetchedAuthors, fetchedBooks] = await Promise.all([
-                getItems('authors', token),
-                getItems('books', token)
-            ]);
-            
-            const bookLookup = {};
-            if (Array.isArray(fetchedBooks)) {
-                fetchedBooks.forEach(book => {
-                    bookLookup[book.id] = book;
-                });
-            }
-
-            if (Array.isArray(fetchedAuthors)) {
-                this.setState({
-                authors: fetchedAuthors,
-                bookLookup: bookLookup,
-                loading: false,
-            });
-
-            } else {
-                console.error("API did not return an array for authors:", fetchedAuthors);
-                this.setState({
-                    error: new Error("Invalid data format received from API."),
-                    loading: false,
-                });
-            }
-
-        } catch (error) {
-            console.error("Failed to fetch authors:", error);
-            this.setState({
-                error: error,
-                loading: false,
-            });
-       }
+        await this.fetchAuthors();
     }
-
-    
 
     paginate = (pageNumber) => {
         this.setState({
@@ -180,6 +208,7 @@ class AdminAuthors extends Component {
             isDeleteModalOpen,
             currentAuthorToDelete, 
             isSaving,
+            isAdding,
             bookLookup
         } = this.state;
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -218,6 +247,9 @@ class AdminAuthors extends Component {
                     <div>
                         <div>
                             <h2>({authors.length} authors)</h2>
+                            <Button color='teal' style={{ marginBottom: '10px', marginTop: '10px' }} onClick={() => this.handleOpenEditModal()}>
+                                Add Author
+                            </Button>
                         </div>
 
                         <div>
@@ -277,13 +309,14 @@ class AdminAuthors extends Component {
                         </div>
                     </div>
                 )}
-                {currentAuthorToEdit && (
+                {(isEditModalOpen) && (
                     <EditAuthorModal
                         currentAuthor={currentAuthorToEdit}
                         isOpen={isEditModalOpen}
                         onClose={this.handleCloseEditModal}
-                        onSave={this.handleSaveAuthorEdit}
+                        onSave={isAdding ? this.handleAddAuthor : this.handleSaveAuthorEdit}
                         isSaving={isSaving}
+                        isAdding={isAdding}
                     />
                 )}
                 {currentAuthorToDelete && (

@@ -15,7 +15,7 @@ import {
     List,
     ListItem,
 } from 'semantic-ui-react';
-import { getItems, updateItem } from '../api';
+import { getItems, updateItem, createItem } from '../api';
 import { AuthContext } from '../utils/authContext';
 import EditAuthorModal from '../components/EditAuthorModal';
 import DeleteModal from '../components/DeleteModal';
@@ -39,8 +39,45 @@ class Authors extends Component {
           currentAuthorToDelete: null,
           currentAuthorToEdit: null,
           isSaving: false,
+          isAdding: false,
           bookLookup: {}
         };
+    }
+
+    fetchAuthors = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const fetchedAuthors = await getItems('authors', token);
+            const fetchedBooks = await getItems('books', token);
+            
+            const bookLookup = {};
+            if (Array.isArray(fetchedBooks)) {
+                fetchedBooks.forEach(book => {
+                    bookLookup[book.id] = book;
+                });
+            }
+
+            if (Array.isArray(fetchedAuthors)) {
+                this.setState({
+                    authors: fetchedAuthors,
+                    loading: false,
+                    bookLookup: bookLookup
+                });
+            } else {
+                console.error("API did not return an array for authors:", fetchedAuthors);
+                this.setState({
+                    error: new Error("Invalid data format received from API."),
+                    loading: false,
+                });
+            }
+        } catch (error) {
+            console.error("Failed to fetch authors:", error);
+            this.setState({
+                error: error,
+                loading: false,
+                bookLookup: {}
+            });
+        }
     }
 
     handleInfoButton = (authorID) => {
@@ -51,6 +88,7 @@ class Authors extends Component {
         this.setState({
             isEditModalOpen: true,
             currentAuthorToEdit: author,
+            isAdding: !author,
         });
     };
 
@@ -58,8 +96,37 @@ class Authors extends Component {
         this.setState({
             isEditModalOpen: false,
             currentAuthorToEdit: null,
+            isAdding: false
         });
     };
+
+    handleAddAuthor = async (newAuthor) => {
+        this.setState({ isSaving: true });
+    
+        const token = localStorage.getItem('token') || 'mock-token';
+        
+        try {
+            const response = await createItem('authors', token, newAuthor);
+            await this.fetchAuthors();
+            this.setState(prevState => ({
+                authors: prevState.authors.map(author => {
+                    if (!author) return author; 
+                    
+                    console.log(response)
+                    
+                    return author.id === response.id ? response : author;
+                }),
+                isSaving: false,
+                isEditModalOpen: false,
+                currentBookToEdit: null,
+                isAdding: false,
+            }));
+    
+        } catch (error) {
+            console.error("Failed to create author via API:", error);
+            this.setState({ isSaving: false }); 
+        }
+    }
 
     handleSaveAuthorEdit = async (updatedAuthor) => {
         this.setState({ isSaving: true });
@@ -69,7 +136,7 @@ class Authors extends Component {
         
         try {
             const response = await updateItem('authors', id, token, updatedAuthor);
-    
+            await this.fetchAuthors();
             this.setState(prevState => ({
                 authors: prevState.authors.map(author => {
                     if (!author) return author; 
@@ -81,6 +148,7 @@ class Authors extends Component {
                 isSaving: false,
                 isEditModalOpen: false,
                 currentAuthorToEdit: null,
+                isAdding: false,
             }));
 
         } catch (error) {
@@ -124,45 +192,7 @@ class Authors extends Component {
              this.setState({ loading: false });
              return;
         }
-        
-        try {
-
-            const token = localStorage.getItem('token');
-
-            const [fetchedAuthors, fetchedBooks] = await Promise.all([
-                getItems('authors', token),
-                getItems('books', token)
-            ]);
-            
-            const bookLookup = {};
-            if (Array.isArray(fetchedBooks)) {
-                fetchedBooks.forEach(book => {
-                    bookLookup[book.id] = book;
-                });
-            }
-
-            if (Array.isArray(fetchedAuthors)) {
-                this.setState({
-                authors: fetchedAuthors,
-                bookLookup: bookLookup,
-                loading: false,
-            });
-
-            } else {
-                console.error("API did not return an array for authors:", fetchedAuthors);
-                this.setState({
-                    error: new Error("Invalid data format received from API."),
-                    loading: false,
-                });
-            }
-
-        } catch (error) {
-            console.error("Failed to fetch authors:", error);
-            this.setState({
-                error: error,
-                loading: false,
-            });
-       }
+        await this.fetchAuthors();
     }
 
     render() {
@@ -176,6 +206,7 @@ class Authors extends Component {
             isDeleteModalOpen,
             currentAuthorToDelete, 
             isSaving,
+            isAdding,
             bookLookup } = this.state;
         const { user } = this.context; 
         const isAdmin = user.role === 'admin'
@@ -216,10 +247,10 @@ class Authors extends Component {
             <React.Fragment>
                 <div>
                 <NavBar />
-                    <div style={{ margin: '55px', height: '40vh' }}>
+                    <div style={{ margin: '55px' }}>
                         <h1>Author  List</h1>
                         {isAdmin && (
-                            <Button color='teal' style={{ marginBottom: '10px' }}>Add Author</Button>
+                            <Button color='teal' style={{ marginBottom: '10px' }} onClick={() => this.handleOpenEditModal()}>Add Author</Button>
                         )}
                         { authors.length > 0 ? (
                             <Grid columns={4}>
@@ -274,20 +305,23 @@ class Authors extends Component {
                                 <p>No authors found.</p>
                             )
                         }
-                        <Paginate
-                            itemsPerPage={itemsPerPage}
-                            totalItems={authors.length}
-                            paginate={this.paginate}
-                            currentPage={currentPage} 
-                        />
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px', marginBottom: '40px' }}>
+                            <Paginate
+                                itemsPerPage={itemsPerPage}
+                                totalItems={authors.length}
+                                paginate={this.paginate}
+                                currentPage={currentPage} 
+                            />
+                        </div>
                     </div>
-                    {currentAuthorToEdit && (
+                    {(isEditModalOpen) && (
                         <EditAuthorModal
                             currentAuthor={currentAuthorToEdit}
                             isOpen={isEditModalOpen}
                             onClose={this.handleCloseEditModal}
-                            onSave={this.handleSaveAuthorEdit}
+                            onSave={isAdding ? this.handleAddAuthor : this.handleSaveAuthorEdit}
                             isSaving={isSaving}
+                            isAdding={isAdding}
                         />
                     )}
                     {currentAuthorToDelete && (

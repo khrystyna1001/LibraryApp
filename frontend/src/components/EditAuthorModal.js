@@ -17,9 +17,9 @@ import {
 } from 'semantic-ui-react';
 
 import { useAuth } from '../utils/authContext';
-import { getItem, getItems, updateItem } from '../api';
+import { getItem, getItems } from '../api';
 
-const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) => {
+const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving, isAdding }) => {
 
     const { user } = useAuth();
     const [formData, setFormData] = useState(null);
@@ -27,30 +27,14 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
     const currentRole = user.role && user.role ? user.role : 'visitor';
     const isAdmin = currentRole === 'admin';
 
-    const handleAddBook = (selectedBookId) => {
-        const newBookObject = fetchedBooks.find(
-            (a) => a.id === selectedBookId
-        );
-        
-        if (newBookObject) {
-            setFormData((prevFormData) => {
-                const isBookAlreadyAdded = prevFormData.books_written.find(
-                    (book) => book.id === newBookObject.id
-                );
-
-                if (!isBookAlreadyAdded) {
-                    return {
-                        ...prevFormData,
-                        books_written: [...prevFormData.books_written, newBookObject],
-                    };
-                }
-
-                return prevFormData;
-            });
-        } else {
-            console.error(`Book with ID ${selectedBookId} not found.`);
-        }
-    }
+    const defaultAuthor = {
+        id: 'New Author - ID assigned on creation',
+        first_name: '',
+        last_name: '',
+        role: 'AUTHOR',
+        full_name: '',
+        books_written: [],
+    };
     
     /**
      * Handles removing a book from the book list.
@@ -101,13 +85,38 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
         });
     };
 
+    const handleAddBook = (selectedBookId) => {
+        const newBookObject = fetchedBooks.find(
+            (b) => b.id === selectedBookId
+        );
+        
+        if (newBookObject) {
+            setFormData((prevFormData) => {
+                const isBookAlreadyAdded = prevFormData.books_written.some(
+                    (b) => b.id === newBookObject.id
+                );
+
+                if (!isBookAlreadyAdded) {
+                    return {
+                        ...prevFormData,
+                        books_written: [...prevFormData.books_written, newBookObject],
+                    };
+                }
+
+                return prevFormData;
+            });
+        } else {
+            console.error(`Book with ID ${selectedBookId} not found.`);
+        }
+    }
+
     const handleFormSubmit = async () => {
         const bookIds = formData.books_written
         .filter(book => book && book.id !== null && book.id !== undefined)
         .map(book => book.id);
 
         const updatedAuthor = {
-            ...currentAuthor, 
+            ...(isAdding ? {} : { id: formData.id }), 
             first_name: formData.first_name,
             last_name: formData.last_name,
             role: formData.role,
@@ -115,36 +124,26 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
             books_written: bookIds,
         };
 
-        try {
-            const token = localStorage.getItem('token') || 'mock_token_123';
-            
-            const response = await updateItem(
-                "authors", 
-                formData.id, 
-                token, 
-                updatedAuthor,
-            );
-            
-            console.log('API Response:', response);
-            
-            if (response) {
-                onSave(updatedAuthor);
-                onClose();
-            }
-        } catch (e) {
-            console.error("Failed to update author data:", e.response ? e.response.data : e);
-        }
+        onSave(updatedAuthor);
     };
 
     useEffect(() => {
 
+        if (!isOpen) {
+            setFormData(null);
+            return;
+        }
+    
+        if (currentAuthor && fetchedBooks.length === 0) {
+            return;
+        }
+    
         if (currentAuthor) {
-
             const safeBooksWritten = Array.isArray(currentAuthor.books_written) 
                 ? currentAuthor.books_written 
                 : [];
-
-                const booksAsObjects = safeBooksWritten
+    
+            const booksAsObjects = safeBooksWritten
                 .map(bookIdOrObject => {
                     const id = typeof bookIdOrObject === 'object' 
                         ? bookIdOrObject.id 
@@ -153,17 +152,19 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
                     return fetchedBooks.find(book => book.id === id);
                 })
                 .filter(book => book);
-            
+    
             setFormData({
                 id: currentAuthor.id,
-                first_name: currentAuthor.first_name,
-                last_name: currentAuthor.last_name,
-                role: currentAuthor.role,
-                full_name: currentAuthor.full_name,
+                first_name: currentAuthor.first_name || '',
+                last_name: currentAuthor.last_name || '',
+                role: currentAuthor.role || 'Author',
+                full_name: currentAuthor.full_name || '',
                 books_written: booksAsObjects
             });
+        } else {
+            setFormData(defaultAuthor);
         }
-    }, [currentAuthor, fetchedBooks]);
+    }, [currentAuthor, isOpen, fetchedBooks]);
 
     useEffect(() => {
         if (isOpen) { 
@@ -175,6 +176,9 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
         return null;
     };
 
+    const modalTitle = isAdding ? 'Add New Author' : 'Edit Author Profile';
+    const submitText = isAdding ? 'Create Author' : 'Save Changes';
+
     return (
         <Modal
             onClose={onClose}
@@ -182,8 +186,8 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
             size='small'
         >
             <ModalHeader>
-                <Icon name='user circle' />
-                Edit Author Profile
+                <Icon name={isAdding ? 'add' : 'edit'} /> 
+                {modalTitle}
             </ModalHeader>
             <ModalContent>
                 <Form>
@@ -348,7 +352,7 @@ const EditAuthorModal = ({ currentAuthor, isOpen, onClose, onSave, isSaving }) =
                     loading={isSaving}
                 >
                     <Icon name='check' />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
+                    {isSaving ? 'Saving...' : submitText}
                 </Button>
             </ModalActions>
         </Modal>

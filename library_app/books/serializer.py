@@ -3,6 +3,12 @@ from books.models import Book
 from authors.models import Author
 
 class BookSerializer(serializers.ModelSerializer):
+    author = serializers.PrimaryKeyRelatedField(
+        queryset=Author.objects.all(),
+        many=True,
+        required=False
+    )
+    
     class Meta:
         model = Book
         fields = [

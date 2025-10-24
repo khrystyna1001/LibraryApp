@@ -11,7 +11,7 @@ class Home extends Component {
          return (
             <React.Fragment>
                 <NavBar />
-                <Card style={{ margin: 'auto', marginTop: '45px', width: '900px', height: '200px'}}>
+                <Card style={{ margin: 'auto', marginTop: '45px', width: '900px' }}>
                     <CardContent>This system allows you to effortlessly manage your book catalog,
                                 keep track of authors, and administer user accounts with ease.
                                 Use the navigation above to begin exploring your collection [HOME].</CardContent>

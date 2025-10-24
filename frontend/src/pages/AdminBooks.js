@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { getItems, updateItem } from "../api";
+import { getItems, updateItem, createItem } from "../api";
 import NavBar from '../components/Navigation'
 import {
     Table,
@@ -37,13 +37,41 @@ class AdminBooks extends Component {
           currentBookToEdit: null,
           currentBookToDelete: null,
           isSaving: false,
+          isAdding: false,
         };
+    }
+
+    fetchBooks = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const fetchedBooks = await getItems('books', token);
+    
+            if (Array.isArray(fetchedBooks)) {
+                this.setState({
+                    books: fetchedBooks,
+                    loading: false,
+                });
+            } else {
+                console.error("API did not return an array for books:", fetchedBooks);
+                this.setState({
+                    error: new Error("Invalid data format received from API."),
+                    loading: false,
+                });
+            }
+        } catch (error) {
+            console.error("Failed to fetch books:", error);
+            this.setState({
+                error: error,
+                loading: false,
+            });
+        }
     }
 
     handleOpenEditModal = (book) => {
         this.setState({
             isEditModalOpen: true,
             currentBookToEdit: book,
+            isAdding: !book,
         });
     };
 
@@ -51,8 +79,37 @@ class AdminBooks extends Component {
         this.setState({
             isEditModalOpen: false,
             currentBookToEdit: null,
+            isAdding: false,
         });
     };
+
+    handleAddBook = async (newBook) => {
+        this.setState({ isSaving: true });
+    
+        const token = localStorage.getItem('token') || 'mock-token';
+        
+        try {
+            const response = await createItem('books', token, newBook);
+            await this.fetchBooks();
+            this.setState(prevState => ({
+                books: prevState.books.map(book => {
+                    if (!book) return book; 
+                    
+                    console.log(response)
+                    
+                    return book.id === response.id ? response : book;
+                }),
+                isSaving: false,
+                isEditModalOpen: false,
+                currentBookToEdit: null,
+                isAdding: false,
+            }));
+    
+        } catch (error) {
+            console.error("Failed to create book via API:", error);
+            this.setState({ isSaving: false }); 
+        }
+    }
 
     handleSaveBookEdit = async (updatedBook) => {
         this.setState({ isSaving: true });
@@ -62,6 +119,7 @@ class AdminBooks extends Component {
         
         try {
             const response = await updateItem('books', id, token, updatedBook);
+            await this.fetchBooks();
     
             this.setState(prevState => ({
                 books: prevState.books.map(book => {
@@ -74,6 +132,7 @@ class AdminBooks extends Component {
                 isSaving: false,
                 isEditModalOpen: false,
                 currentBookToEdit: null,
+                isAdding: false,
             }));
     
         } catch (error) {
@@ -112,31 +171,7 @@ class AdminBooks extends Component {
              return;
         }
 
-        try {
-            const token = localStorage.getItem('token') || 'mock-token'; 
-            
-            const fetchedBooks = await getItems('books', token)
-
-            if (Array.isArray(fetchedBooks)) {
-                this.setState({
-                books: fetchedBooks,
-                loading: false,
-            });
-            } else {
-                console.error("API did not return an array for books:", fetchedBooks);
-                this.setState({
-                    error: new Error("Invalid data format received from API."),
-                    loading: false,
-                });
-            }
-
-        } catch (error) {
-            console.error("Failed to fetch books:", error);
-            this.setState({
-                error: error,
-                loading: false,
-            });
-        }
+        await this.fetchBooks();
     }
 
     paginate = (pageNumber) => {
@@ -155,7 +190,8 @@ class AdminBooks extends Component {
             isDeleteModalOpen, 
             currentBookToEdit,
             currentBookToDelete, 
-            isSaving  
+            isSaving,
+            isAdding,
         } = this.state;
 
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -194,6 +230,9 @@ class AdminBooks extends Component {
                     <div>
                         <div>
                             <h2>Current Inventory ({books.length} books)</h2>
+                            <Button color='teal' style={{ marginBottom: '10px', marginTop: '10px' }} onClick={() => this.handleOpenEditModal()}>
+                                Add Book
+                            </Button>
                         </div>
 
                         <div>
@@ -248,13 +287,14 @@ class AdminBooks extends Component {
                         </div>
                     </div>
                 )}
-                {currentBookToEdit && (
+                {(isEditModalOpen) && (
                     <EditBookModal
                         currentBook={currentBookToEdit}
                         isOpen={isEditModalOpen}
                         onClose={this.handleCloseEditModal}
-                        onSave={this.handleSaveBookEdit}
+                        onSave={isAdding ? this.handleAddBook : this.handleSaveBookEdit}
                         isSaving={isSaving}
+                        isAdding={isAdding}
                     />
                 )}
                 {currentBookToDelete && (

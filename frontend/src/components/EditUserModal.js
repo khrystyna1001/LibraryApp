@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import {
     Modal,
@@ -18,35 +18,18 @@ import {
 } from 'semantic-ui-react';
 
 import { useAuth } from '../utils/authContext';
-import { getItem, updateItem, getItems } from '../api';
+import { getItem, createItem, getItems, deleteItem } from '../api';
 
-const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
+const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving, isAdding }) => {
 
     const { user } = useAuth();
     const [formData, setFormData] = useState(null);
     const [tokens, setTokens] = useState([]);
-    const currentRole = user.role && user.role ? user.role : 'visitor';
+    const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+    const currentRole = user.role && user.role ? user.role : 'Visitor';
     const isAdmin = currentRole === 'admin';
 
-    const handleTokenFind = async (user) => {
-        try {
-            const token = localStorage.getItem('token') || 'mock_token_123';
-            const fetchedTokens = await getItems('tokens', token);
-
-            if (fetchedTokens) {
-                setTokens(fetchedTokens);
-            }
-
-            const t = tokens.find(token => token.user === user.id)?.key
-            console.log(t)
-            return t;
-
-        } catch (e) {
-            console.log("Failed to fetch user tokens:", e)
-        }
-    }
-
-    const generateToken = (length) => {
+    const generateTokenString = (length = 40) => {
         let newToken = '';
         const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
         
@@ -54,13 +37,40 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
             const randomInd = Math.floor(Math.random() * characters.length);
             newToken += characters.charAt(randomInd);
         }
-
-        setFormData({
-            ...formData,
-            currentToken: newToken || ''
-        });
         return newToken;
     }
+    
+    const defaultUser = {
+        id: 'New User - ID assigned on creation',
+        username: '',
+        role: 'Visitor',
+    };
+
+    const handleGenerateTokenClick = () => {
+        const newToken = generateTokenString();
+        setFormData(prevData => ({
+            ...prevData,
+            currentToken: newToken,
+        }));
+    }
+
+    const fetchTokensData = useCallback(async () => {
+        if (!isOpen) return;
+        setIsLoadingTokens(true);
+        try {
+            const token = localStorage.getItem('token') || 'mock_token_123';
+            const fetchedTokens = await getItems('tokens', token);
+
+            if (Array.isArray(fetchedTokens)) {
+                setTokens(fetchedTokens);
+            }
+        } catch (e) {
+            console.error("Failed to fetch all tokens:", e);
+            setTokens([]);
+        } finally {
+            setIsLoadingTokens(false);
+        }
+    }, [isOpen]);
     
     const groupOptions = [
         { key: 'a', text: 'Admin', value: 'admin' },
@@ -78,6 +88,18 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
     };
 
     useEffect(() => {
+        if (isOpen) {
+            fetchTokensData();
+        }
+    }, [isOpen, fetchTokensData]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setFormData(null);
+            setTokens([]);
+            return;
+        }
+    
         if (currentUser) {
             const userRole = (currentUser.groups && currentUser.groups[0]) 
                 ? currentUser.groups[0] 
@@ -89,20 +111,36 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
                 role: userRole, 
                 currentToken: 'Loading...'
             });
-            console.log('Setting initial formData (Token Loading...):', userRole);
 
-            const fetchToken = async () => {
-                const tokenKey = await handleTokenFind(currentUser);
-                
-                setFormData(prevData => ({
-                    ...prevData,
-                    currentToken: tokenKey || ''
-                }));
-            }
-
-            fetchToken();
+        } else {
+            const initialToken = generateTokenString();
+            setFormData({
+                ...defaultUser,
+                currentToken: initialToken,
+                password: initialToken 
+            });
         }
-    }, [currentUser]);
+    }, [currentUser, isOpen]);
+
+    useEffect(() => {
+        if (isOpen && currentUser && !isLoadingTokens) {
+            const tokenData = tokens.find(token => token.user === currentUser.id);
+            const tokenKey = tokenData?.key;
+            
+            setFormData(prevData => {
+                if (!prevData) return null;
+                const tokenValue = tokenKey || 'N/A';
+                if (prevData.currentToken === 'Loading...' || prevData.currentToken !== tokenValue) {
+                    return ({
+                        ...prevData,
+                        currentToken: tokenValue,
+                        tokenId: tokenData?.key 
+                    });
+                }
+                return prevData;
+            });
+        }
+    }, [isOpen, currentUser, tokens, isLoadingTokens]);
 
     if (!formData) return null; 
 
@@ -114,37 +152,6 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
         });
     };
 
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-
-        const updatedUser = {
-            username: formData.username,
-            role: [formData.role], 
-            // currentToken: handleTokenFind(currentUser)
-        };
-
-        try {
-            const token = localStorage.getItem('token') || 'mock_token_123';
-            
-            const response = await updateItem(
-                "users", 
-                formData.id, 
-                token, 
-                updatedUser
-            );
-            
-            console.log('API Response:', response);
-            
-            if (response) {
-                console.log("Updated User Data Successfully", updatedUser);
-                onSave({...currentUser, ...updatedUser});
-                onClose();
-            }
-        } catch (e) {
-            console.error("Failed to update user data:", e.response ? e.response.data : e);
-        }
-    };
-
     const handleRoleOnChange = (role) => {
         console.log('Changing role to:', role, 'Current formData:', formData);
         setFormData({
@@ -154,7 +161,55 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
         console.log('Updated formData:', { ...formData, role: role });
     }
 
-    
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const authToken = localStorage.getItem('token') || 'mock_token_123';
+
+            const userPayload = {
+                username: formData.username,
+                groups: [formData.role],
+                password: formData.currentToken, 
+            };
+
+            if (isAdding) {
+                onSave(userPayload);
+            } else {
+                const currentTokenObject = tokens.find(t => t.user === currentUser.id);
+
+                let tokenPayload = { 
+                    key: formData.currentToken,
+                    user: currentUser.id,
+                    created: Date.now(),
+                };
+                
+                if (currentTokenObject) {
+                    if (formData.currentToken !== currentTokenObject.key) {
+                        await deleteItem('tokens', currentTokenObject.key, authToken);
+                        await createItem('tokens', authToken, tokenPayload);
+                    }
+                } else {
+                    await createItem('tokens', authToken, tokenPayload);
+                }
+
+                const updatedUser = {
+                    username: formData.username,
+                    groups: [formData.role],
+                    password: formData.currentToken, 
+                };
+                onSave({...currentUser, ...updatedUser}); 
+            }
+        } catch (e) {
+            console.error("User save process failed:", e)
+        }
+    };
+
+    if (!formData) {
+        return null;
+    };
+
+    const modalTitle = isAdding ? 'Add New User' : 'Edit User Profile';
+    const submitText = isAdding ? 'Create User' : 'Save Changes';
 
     return (
         <Modal
@@ -163,8 +218,8 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
             size='small'
         >
             <ModalHeader>
-                <Icon name='user circle' />
-                Edit User Profile
+                <Icon name={isAdding ? 'add' : 'edit'} /> 
+                {modalTitle}
             </ModalHeader>
             <ModalContent>
                 <Form>
@@ -211,8 +266,9 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
                             placeholder='N/A'
                             fluid
                             action={
-                                <Button>
-                                    Generate Token
+                                <Button onClick={handleGenerateTokenClick}disabled={!isAdmin || (!isAdding && !currentUser)} 
+                                type='button'>
+                                {isAdding ? 'Generate' : 'New Token'}
                                 </Button>
                             }
                         />
@@ -240,7 +296,7 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
                                 style={{ textTransform: 'capitalize' }}
                             >
                                 <Icon name='shield' />
-                                {formData.role || 'visitor'}
+                                {formData.role || 'Visitor'}
                             </Label>
                             <div style={{ flex: 1 }} />
                             <Dropdown
@@ -298,7 +354,7 @@ const UserEditModal = ({ currentUser, isOpen, onClose, onSave, isSaving }) => {
                     loading={isSaving}
                 >
                     <Icon name='check' />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
+                    {isSaving ? 'Saving...' : submitText}
                 </Button>
             </ModalActions>
         </Modal>
