@@ -135,13 +135,13 @@ class AdminUsers extends Component {
             });
 
         } catch (error) {
-            console.error(`Failed to create token for user ${userId}:`, error);
+            console.error(`Failed to generate token for user ${userId}:`, error);
             this.setState(prevState => {
                 const newTokenLoading = { ...prevState.tokenCreationLoading };
                 delete newTokenLoading[userId];
                 return { 
                     tokenCreationLoading: newTokenLoading,
-                    error: new Error(`Failed to create token for ${user.username}.`)
+                    error: new Error(`Failed to generate token for ${user.username}.`)
                 };
             });
         }
@@ -340,7 +340,7 @@ class AdminUsers extends Component {
                                                             size='tiny' 
                                                             onClick={() => this.handleCreateToken(user)}
                                                         >
-                                                            Create Token
+                                                            Generate Token
                                                         </Button>
                                                     )}
                                             </TableCell>

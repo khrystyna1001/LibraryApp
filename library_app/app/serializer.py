@@ -2,20 +2,27 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from books.models import Book
 
 
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    books_borrowed = serializers.PrimaryKeyRelatedField(
+        queryset=Book.objects.all(),
+        many=True,
+        required=False
+    )  
+     
     groups = serializers.SlugRelatedField(
         many=True,
         read_only=True,
         slug_field='name',
-     )  
-     
+    )
+    
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'groups',)
+        fields = ('id', 'username', 'password', 'groups', 'books_borrowed',)
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
