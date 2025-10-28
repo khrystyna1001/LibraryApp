@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "corsheaders",
-    "django_filters",
     "rest_framework",
     "drf_yasg",
     "social_django",
