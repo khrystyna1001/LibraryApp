@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./library_app
+    ports:
+      - "8000:8000"
+    working_dir: /backend/library_app
+    volumes:
+      - .:/backend
+    env_file:
+      - .env
+    command: >
+      sh -c "python manage.py makemigrations 
+      && python manage.py migrate 
+      && python manage.py runserver 0.0.0.0:8000"
+  frontend:
+    build: ./frontend
+    working_dir: /frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/frontend
+    env_file:
+      - .env
+    command: >
+      sh -c "npm start"

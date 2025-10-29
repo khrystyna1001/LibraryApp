@@ -11,21 +11,24 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from environ import Env
+
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-cipyh29q1^hd@sb4qmtj)p87ppecb%9i=izp1n$ug=&g!2ux7&"
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 
 # Application definition
@@ -152,18 +155,15 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-SOCIAL_AUTH_FACEBOOK_KEY = "713417228147118"
-SOCIAL_AUTH_FACEBOOK_SECRET = "0a3e195be09c94f1ec03972aa7359724"
+SOCIAL_AUTH_FACEBOOK_KEY = env.str("SOCIAL_AUTH_FACEBOOK_KEY")
+SOCIAL_AUTH_FACEBOOK_SECRET = env.str("SOCIAL_AUTH_FACEBOOK_SECRET")
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = [
     'email',
 ]
 
 # CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://192.168.88.33:3000",
-]
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
 
 CORS_ALLOW_METHODS = [
     'DELETE',
