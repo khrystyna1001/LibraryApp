@@ -15,6 +15,7 @@ import withRouter from '../utils/withRouter';
 import { getItem, updateItem } from '../api';
 import { AuthContext } from '../utils/authContext';
 import EditBookModal from '../components/EditBookModal';
+import IssueBookModal from '../components/IssueBookModal';
 import DeleteModal from '../components/DeleteModal';
 
 
@@ -29,6 +30,7 @@ class Book extends Component {
           loading: true,
           user: {},
           isEditModalOpen: false,
+          isIssueModalOpen: false,
           isDeleteModalOpen: false,
           isSaving: false,
         };
@@ -100,6 +102,20 @@ class Book extends Component {
         });
     };
 
+    handleOpenIssueModal = (book) => {
+        this.setState({
+            isIssueModalOpen: true,
+            currentBookToIssue: book,
+        });
+    };
+
+    handleCloseIssueModal = () => {
+        this.setState({
+            isIssueModalOpen: false,
+            currentBookToIssue: null,
+        });
+    };
+
     async componentDidMount() {
         const { user } = this.context;
         
@@ -142,9 +158,11 @@ class Book extends Component {
             error, 
             loading,
             isEditModalOpen,
-            isDeleteModalOpen, 
+            isDeleteModalOpen,
+            isIssueModalOpen,
             currentBookToEdit,
             currentBookToDelete, 
+            currentBookToIssue,
             isSaving } = this.state;
         const { user } = this.context;
         const isAdmin = user.role === 'admin';
@@ -182,7 +200,7 @@ class Book extends Component {
             <React.Fragment>
                     <NavBar />
                     <div style={{ height: '40vh' }}>
-                    <Card style={{ display: 'flex', margin: 'auto', align_items: 'center', marginBottom: '10px', marginTop: '55px', width: '900px' }}>
+                    <Card style={{ display: 'flex', margin: 'auto', align_items: 'center', marginTop: '55px', width: '900px' }}>
 
                         <CardContent header={book.title}></CardContent>
                                 <CardContent>
@@ -230,7 +248,7 @@ class Book extends Component {
                             {book.id && isAdmin ? 
                                 <>
                                 <div className='ui two buttons'>
-                                    <Button onClick={this.handleIssueButton}> Issue Book</Button>
+                                    <Button onClick={() => this.handleOpenIssueModal(book)}> Issue Book</Button>
                                     <Button onClick={() => this.handleOpenEditModal(book)}> Edit Book</Button>
                                 </div>
                                 <div className='ui button'>
@@ -240,6 +258,15 @@ class Book extends Component {
                             }
                         </div>
                     </Card>
+                    {currentBookToIssue && (
+                        <IssueBookModal
+                            currentBook={currentBookToIssue}
+                            isOpen={isIssueModalOpen}
+                            onClose={this.handleCloseIssueModal}
+                            onSave={this.handleSaveBookIssue}
+                            isSaving={isSaving}
+                        />
+                    )}
                     {currentBookToEdit && (
                         <EditBookModal
                             currentBook={currentBookToEdit}
