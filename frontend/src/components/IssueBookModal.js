@@ -11,7 +11,6 @@ import {
     Form,
     FormField,
     Dropdown,
-    Label,
     Divider,
     Header
 } from 'semantic-ui-react';
@@ -26,14 +25,14 @@ const IssueBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAddi
     const [fetchedBooks, setFetchedBooks] = useState([]);
     const [fetchedUsers, setFetchedUsers] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
-    const [cBook, setcBook] = useState(null);
+    const [currentBooks, setCurrentBooks] = useState(null);
     const currentRole = user.role && user.role ? user.role : 'visitor';
     const isAdmin = currentRole === 'admin';
 
     const defaultIssue = {
         id: 'Issue Book - id assigned at creation',
-        book_id: null,
-        visitor_id: null
+        book_id: currentBook?.id || null,
+        visitor_id: currentUser?.id || null
     };
 
     const bookOptions = fetchedBooks.map(book => ({
@@ -92,21 +91,31 @@ const IssueBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAddi
         }
     }
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+    const selectUser = (e, { value }) => {
+        const selectedUser = fetchedUsers.find(u => u.id === value);
+        setCurrentUser(selectedUser);
+        setFormData(prev => ({
+            ...prev,
+            visitor_id: value
+        }));
+    }
+
+    const selectBook = (e, { value }) => {
+        const selectedBook = fetchedBooks.find(b => b.id === value);
+        setCurrentBooks(selectedBook);
+        setFormData(prev => ({
+            ...prev,
+            book_id: value
+        }));
+    }
+
+    const handleFormSubmit = async () => {
+        const issuedBook = {
+            id: formData.book_id,
+            user_id: formData.visitor_id
+        };
+        onSave(issuedBook);
     };
-
-    const selectUser = (user) => {
-        setCurrentUser(fetchedUsers.find(u => user === u))
-    }
-
-    const selectBook = (book) => {
-        setcBook(fetchedBooks.find(b => book === b))
-    }
 
     useEffect(() => {
 
@@ -119,24 +128,32 @@ const IssueBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAddi
             return;
         }
     
-        if (currentBook) {
+        if (currentBooks && currentUser) {
             setFormData({
-                id: currentBook.id,
-                book_id: cBook.id || '',
-                visitor_id: currentUser.id || '',
+                id: currentBooks.id,
+                book_id: currentBooks.id || '',
+                visitor_id: currentUser.id || '', 
             });
         } else {
-            setFormData(defaultIssue);
+            setFormData({
+                id: defaultIssue.id,
+                book_id: defaultIssue.book_id || '',
+                visitor_id: defaultIssue.visitor_id || ''
+            });
         }
-    }, [currentBook, isOpen, fetchedBooks, fetchedUsers]);
+    }, [currentBook, isOpen, fetchedBooks, fetchedUsers, currentUser]);
 
     useEffect(() => {
         if (isOpen) { 
             fetchBooks();
             fetchUsers();
-            selectUser();
         }
     }, [isOpen, user.isAuthenticated]);
+
+    useEffect(() => {
+        setCurrentBooks(currentBook);
+        setCurrentUser(user);
+    }, [currentBook, user]);
 
     if (!formData) {
         return null;
@@ -144,6 +161,8 @@ const IssueBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAddi
 
     const modalTitle = 'Issue Book';
     const submitText = 'Issue';
+    const bookValue = currentBooks?.id;
+    const userValue = currentUser?.id;
 
     return (
         <Modal
@@ -162,7 +181,7 @@ const IssueBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAddi
                             Issue ID
                         </label>
                         <Input 
-                            value={formData.id || 'N/A'} 
+                            value={formData?.id || 'N/A'} 
                             disabled
                             icon='hashtag'
                             iconPosition='left'
@@ -183,8 +202,8 @@ const IssueBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAddi
                             fluid
                             selection
                             options={bookOptions}
-                            value={''}
-                            onChange={(e, data) => selectBook(data.value)}
+                            onChange={selectBook}
+                            value={bookValue}
                             disabled={!isAdmin}
                             search
                         />
@@ -203,8 +222,8 @@ const IssueBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAddi
                             fluid
                             selection
                             options={userOptions}
-                            value={''}
-                            onChange={() => selectUser(user)}
+                            value={userValue}
+                            onChange={selectUser}
                             disabled={!isAdmin}
                             search
                         />
@@ -238,6 +257,7 @@ const IssueBookModal = ({ currentBook, isOpen, onClose, onSave, isSaving, isAddi
                     primary
                     disabled={!isAdmin || isSaving}
                     loading={isSaving}
+                    onClick={handleFormSubmit} 
                 >
                     <Icon name='check' />
                     {isSaving ? 'Saving...' : submitText}

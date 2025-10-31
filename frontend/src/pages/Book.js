@@ -12,7 +12,7 @@ import {
 } from 'semantic-ui-react';
 
 import withRouter from '../utils/withRouter';
-import { getItem, updateItem } from '../api';
+import { getItem, issueBook, updateItem } from '../api';
 import { AuthContext } from '../utils/authContext';
 import EditBookModal from '../components/EditBookModal';
 import IssueBookModal from '../components/IssueBookModal';
@@ -100,6 +100,32 @@ class Book extends Component {
             isDeleteModalOpen: false,
             currentBookToDelete: null,
         });
+    };
+
+    handleSaveBookIssue = async (issuedBook) => {
+        this.setState({ isSaving: true });
+    
+        const token = localStorage.getItem('token') || 'mock-token'; 
+        const { id, user_id } = issuedBook;
+
+        const issuedBookData = {
+            "user_id": user_id
+        }
+        
+        try {
+            const response = await issueBook(id, 'books', issuedBookData, token);
+    
+            this.setState({
+                book: response,
+                isSaving: false,
+                isIssueModalOpen: false,
+                currentBookToIssue: null,
+            });
+    
+        } catch (error) {
+            console.error("Failed to issue book via API:", error);
+            this.setState({ isSaving: false }); 
+        }
     };
 
     handleOpenIssueModal = (book) => {
