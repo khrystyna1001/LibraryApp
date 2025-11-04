@@ -12,11 +12,12 @@ import {
 } from 'semantic-ui-react';
 
 import withRouter from '../utils/withRouter';
-import { getItem, issueBook, updateItem } from '../api';
+import { getItem, issueBook, returnBook, updateItem } from '../api';
 import { AuthContext } from '../utils/authContext';
 import EditBookModal from '../components/EditBookModal';
 import IssueBookModal from '../components/IssueBookModal';
 import DeleteModal from '../components/DeleteModal';
+import ReturnBookModal from '../components/ReturnBookModal';
 
 
 class Book extends Component {
@@ -32,6 +33,7 @@ class Book extends Component {
           isEditModalOpen: false,
           isIssueModalOpen: false,
           isDeleteModalOpen: false,
+          isReturnModalOpen: false,
           isSaving: false,
         };
     }
@@ -142,6 +144,55 @@ class Book extends Component {
         });
     };
 
+    // handleReturnBook = async (returnedBook) => {
+    //     this.setState({ isSaving: true });
+    
+    //     const token = localStorage.getItem('token') || 'mock-token'; 
+    //     const { id, user_id } = returnedBook;
+
+    //     const returnedBookData = {
+    //         "user_id": user_id
+    //     }
+        
+    //     try {
+    //         const response = await returnBook(id, 'books', returnedBookData, token);
+    
+    //         this.setState({
+    //             book: response,
+    //             isSaving: false,
+    //             isReturnModalOpen: false,
+    //             currentBookToReturn: null,
+    //         });
+    
+    //     } catch (error) {
+    //         console.error("Failed to issue book via API:", error);
+    //         this.setState({ isSaving: false }); 
+    //     }
+    // };
+
+    handleReturnBook = (returnedBook) => {
+        this.setState({
+            book: returnedBook,
+            isSaving: false,
+            isReturnModalOpen: false,
+            currentBookToReturn: null,
+        });
+    };
+
+    handleOpenReturnModal = (book) => {
+        this.setState({
+            isReturnModalOpen: true,
+            currentBookToReturn: book,
+        });
+    };
+
+    handleCloseReturnModal = () => {
+        this.setState({
+            isReturnModalOpen: false,
+            currentBookToReturn: null,
+        });
+    };
+
     async componentDidMount() {
         const { user } = this.context;
         
@@ -186,9 +237,11 @@ class Book extends Component {
             isEditModalOpen,
             isDeleteModalOpen,
             isIssueModalOpen,
+            isReturnModalOpen,
             currentBookToEdit,
             currentBookToDelete, 
             currentBookToIssue,
+            currentBookToReturn,
             isSaving } = this.state;
         const { user } = this.context;
         const isAdmin = user.role === 'admin';
@@ -262,19 +315,16 @@ class Book extends Component {
                             <Button onClick={this.handleAuthorListButton}>Go back to author list</Button>
                         
                         </div>
-                            {/*VISITOR UI*/}
-                        <div className='ui button'>
-                            {book.is_available && !isAdmin ? 
-                                <Button onClick={this.handleBorrowButton}> Borrow Book</Button> :
-                                <></>
-                            }
-                        </div>
                             {/*LIBARARIAN / ADMIN UI*/}
                         <div className='ui two buttons'>
                             {book.id && isAdmin ? 
                                 <>
                                 <div className='ui two buttons'>
-                                    <Button onClick={() => this.handleOpenIssueModal(book)}> Issue Book</Button>
+                                    {book.is_available ? 
+                                        <Button onClick={() => this.handleOpenIssueModal(book)}> Issue Book</Button>
+                                        :
+                                        <Button onClick={() => this.handleOpenReturnModal(book)}> Return Book</Button>
+                                        }
                                     <Button onClick={() => this.handleOpenEditModal(book)}> Edit Book</Button>
                                 </div>
                                 <div className='ui button'>
@@ -284,13 +334,22 @@ class Book extends Component {
                             }
                         </div>
                     </Card>
-                    {currentBookToIssue && (
+                    {currentBookToIssue && currentBookToReturn && (
+                        currentBookToIssue.is_available ? 
                         <IssueBookModal
                             currentBook={currentBookToIssue}
                             isOpen={isIssueModalOpen}
                             onClose={this.handleCloseIssueModal}
                             onSave={this.handleSaveBookIssue}
                             isSaving={isSaving}
+                        /> :
+                        <ReturnBookModal
+                            item={currentBookToReturn}
+                            itemName={currentBookToReturn.title}
+                            apiItemName={'books'}
+                            isOpen={isReturnModalOpen}
+                            onClose={this.handleCloseReturnModal}
+                            onSave={this.handleReturnBook} 
                         />
                     )}
                     {currentBookToEdit && (

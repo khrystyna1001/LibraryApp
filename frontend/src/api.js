@@ -179,4 +179,32 @@ async function issueBook(itemID, item, itemData, token) {
     }
 }
 
-export { getItem, getItems, createItem, getUserData, updateItem, deleteItem, searchItems, issueBook };
+async function returnBook(itemID, item, itemData, token) {
+    try {
+        const requestHeaders = {
+            "Content-Type": "application/json",
+            "Authorization": `Token ${token}`
+        }
+
+        const response = await axios.post(`${API_URL}/${item}/${itemID}/take_back/`, 
+            itemData, 
+            {headers: requestHeaders});
+
+        if (response.status === 200) {
+            return response.data;
+        }
+    } catch (error) {
+        console.error(`Failed to issue item:`, error);
+        throw error;
+    }
+}
+
+export { getItem, 
+    getItems, 
+    createItem, 
+    getUserData, 
+    updateItem, 
+    deleteItem, 
+    searchItems, 
+    issueBook, 
+    returnBook };

@@ -41,3 +41,28 @@ class BookViewSet(viewsets.ModelViewSet):
         book.save()
         
         return Response(BookSerializer(book).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='take_back')
+    def take_back_book(self, request, pk=None):
+        book = self.get_object()
+        user_id = request.data.get('user_id')
+
+        if not request.user.groups.filter(name='Librarian').exists() and not request.user.is_superuser:
+            raise PermissionDenied("You must be a Librarian or Admin to return books.")
+
+        if not user_id:
+            return Response({'detail': 'User ID is required to take return the book.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            visitor = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'Visitor not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if book.is_available:
+            return Response({'detail': f'Book "{book.title}" is currently not borrowed by anyone.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        book.borrower = None
+        book.is_available = True
+        book.save()
+        
+        return Response(BookSerializer(book).data, status=status.HTTP_200_OK)
